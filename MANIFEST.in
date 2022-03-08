@@ -1,0 +1,24 @@
+include *.rst
+include *.txt
+include tox.ini
+
+recursive-include docs *.bat
+recursive-include docs *.py
+recursive-include docs *.rst
+recursive-include docs Makefile
+
+recursive-include lib *.h
+recursive-include lib *.c
+
+recursive-include src *.py
+recursive-include src py.typed
+recursive-include src *.c
+
+recursive-include tests *.py
+
+recursive-include utils *.py
+recursive-include utils *.txt
+
+exclude .gitignore
+exclude .gitattributes
+prune .github

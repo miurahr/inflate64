@@ -1,0 +1,12 @@
+.eggs
+.hypothesis
+.idea
+.tox
+.coverage
+build
+cmake-build-debug
+dist
+*.egg-info
+__pycache__
+*.so
+*.pyd

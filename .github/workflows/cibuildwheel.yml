@@ -4,7 +4,6 @@ name: cibuildwheel
 on:
   push:
     branches:
-      - main
       - releases/*
     tags:
       - v*

@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.19)
-project(deflate64 C CXX)
+project(inflate64 C CXX)
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 # TARGET PYTHON version
-set(PY_VERSION 3.8)
+set(PY_VERSION 3.9)
 set(Python_FIND_IMPLEMENTATIONS CPython)
 #set(Python_FIND_IMPLEMENTATIONS PyPy)
 set(VENV_PATH "${CMAKE_BINARY_DIR}/venv")
@@ -15,10 +15,10 @@ set(DEBUG_BUILD ON)
 # Configuration for python-ext
 set(Python_FIND_STRATEGY VERSION)
 find_package(Python ${PY_VERSION}.0...${PY_VERSION}.99 COMPONENTS Interpreter Development)
-set(PY_EXT_FILE _deflate64)
-set(PY_CFFI_FILE _deflate64)
-set(PY_EXT_DIR src/deflate64/c)
-set(PY_CFFI_DIR src/deflate64/cffi)
+set(PY_EXT_FILE _deflate9)
+set(PY_CFFI_FILE _deflate9)
+set(PY_EXT_DIR src/inflate64/c)
+set(PY_CFFI_DIR src/inflate64/cffi)
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/get_ext.py
      "import sysconfig\nprint(sysconfig.get_config_var('EXT_SUFFIX'))\n")
 execute_process(
@@ -165,12 +165,19 @@ add_dependencies(pytest_runner venv.stamp generate_ext generate_cffi)
 
 # ##################################################################################################
 # for build test and analytics
-include_directories(lib lib2)
-add_library(
-        deflate64
-        lib/Arch.h
-        lib/Interface.h
-        src/ext/_deflate64module.c)
-target_include_directories(deflate64 PRIVATE ${Python_INCLUDE_DIRS})
-target_link_libraries(deflate64 PRIVATE ${Python_LIBRARIES})
+include_directories(src/lib)
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+add_library(inflate64
+            src/lib/deflate9.c
+            src/lib/inflate9.c
+            src/lib/inftree9.c
+            src/lib/trees.c
+            src/lib/zutil.c
+            )
+set_target_properties(inflate64 PROPERTIES
+        POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS}
+        VISIBILITY_INLINES_HIDDEN ON
+        )
+target_include_directories(inflate64 PRIVATE ${Python_INCLUDE_DIRS})
+target_link_libraries(inflate64 PRIVATE ${Python_LIBRARIES})
 # ##################################################################################################

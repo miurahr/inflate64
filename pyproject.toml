@@ -1,11 +1,76 @@
 [project]
-requires-python = ">=3.6"
+name = "inflate64"
+requires-python = ">=3.7"
+description = "deflate64 compression/decompression library"
+readme = "README.rst"
+license = {text = "LGPL-2.1-or-later"}
+authors = [
+    {name = "Hiroshi Miura", email = "miurahr@linux.com"},
+]
+classifiers = [
+    "Development Status :: 2 - Pre-alpha",
+    "License :: OSI Approved :: GNU Lesser General Public License v2 or later (LGPLv2+)",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+      'importlib_metadata;python_version<"3.8"',
+]
+keywords = ['infback9', 'compression', '7zip', 'deflate64']
+dynamic = ["version"]
+[project.optional-dependencies]
+test_compat = ["libarchive-c"]
+test = [
+      "pytest",
+      "pytest-benchmark",
+      "pytest-cov",
+      "pytest-timeout",
+      "pyannotate",
+      "py-cpuinfo",
+      "coverage[toml]>=5.2",
+      "coveralls>=2.1.1",
+      "atheris",
+      "hypothesis"
+]
+docs = [
+      "sphinx>=5.0",
+      "docutils",
+]
+check = [
+      "mypy>=0.940",
+      "mypy_extensions>=0.4.1",
+      "check-manifest",
+      "flake8",
+      "flake8-black",
+      "flake8-deprecated",
+      "isort>=5.0.3",
+      "pygments",
+      "readme-renderer",
+      "twine",
+]
+debug = [
+      "pytest",
+      "pytest-leaks",
+      "pytest-profiling",
+]
 
 [build-system]
-requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.0.1"]
+requires = ["setuptools>=45", "setuptools_scm[toml]>=6.0.1"]
 build-backend = "setuptools.build_meta"
 
-[tools.setuptools_scm]
+[tool.setuptools_scm]
 local_scheme = "no-local-version"
 
 [tool.black]
@@ -74,10 +139,10 @@ archs = ["x86_64", "arm64"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = check, py{36,37,38,39,310}, pypy3, docs, coveralls
+envlist = check, py{37,38,39,310}, pypy3, docs, coveralls
 
 [testenv]
-passenv = TRAVIS TRAVIS_* APPVEYOR APPVEYOR_* GITHUB_* PYTEST_ADDOPTS COVERALLS_* MSYSTEM
+passenv = TRAVIS TRAVIS_* APPVEYOR APPVEYOR_* GITHUB_* PYTEST_ADDOPTS COVERALLS_*
 extras = test
 commands =
     python -m pytest -vv -s
@@ -99,7 +164,6 @@ commands =
 
 [gh-actions]
 python =
-    3.6: py36
     3.7: py37
     3.8: py38, check, docs
     3.9: py39

@@ -1,13 +1,17 @@
-Deflate64
+inflate64
 =========
 
+inflate64 is a python package to provide decompression(inflate) funciton of deflate64
+compression algorithm.
 
 Copyright and License
 ---------------------
 
-Copyright (C) 2022 Hiroshi Miura
+- Copyright (C) 2022 Hiroshi Miura
 
-Copyright (C) 1999-2017 Igor Pavlov
+- Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler
+
+- Copyright (C) 2020 Force Charlie
 
 This library is free software; you can redistribute it and/or
 modify it under the terms of the GNU Lesser General Public

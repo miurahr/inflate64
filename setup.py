@@ -8,10 +8,14 @@ from setuptools.command.build_ext import build_ext
 from setuptools.command.egg_info import egg_info
 
 sources = [
-    "",
+    "src/lib/deflate9.c",
+    "src/lib/inflate9.c",
+    "src/lib/inftree9.c",
+    "src/lib/trees.c",
+    "src/lib/zutil.c"
 ]
-_deflate64_extension = Extension("deflate64._deflate64", sources)
-kwargs = {"include_dirs": ["lib"], "library_dirs": [], "libraries": [], "sources": sources, "define_macros": []}
+_deflate64_extension = Extension("inflate64._inflate64", sources)
+kwargs = {"include_dirs": ["src/lib"], "library_dirs": [], "libraries": [], "sources": sources, "define_macros": []}
 
 
 def has_option(option):
@@ -24,10 +28,10 @@ def has_option(option):
 
 if has_option("--cffi") or platform.python_implementation() == "PyPy":
     # packages
-    packages = ["deflate64", "deflate64.cffi"]
+    packages = ["inflate64", "inflate64.cffi"]
 
     # binary extension
-    kwargs["module_name"] = "deflate64.cffi._cffi_deflate64"
+    kwargs["module_name"] = "inflate64.cffi._cffi_inflate64"
 
     sys.path.append("src/ext")
     import ffi_build
@@ -36,11 +40,11 @@ if has_option("--cffi") or platform.python_implementation() == "PyPy":
     binary_extension = ffi_build.ffibuilder.distutils_extension()
 else:  # C implementation
     # packages
-    packages = ["deflate64", "deflate64.c"]
+    packages = ["inflate64", "inflate64.c"]
 
     # binary extension
-    kwargs["name"] = "deflate64.c._deflate64"
-    kwargs["sources"].append("src/ext/_deflate64module.c")
+    kwargs["name"] = "inflate64.c._inflate64"
+    kwargs["sources"].append("src/ext/_inflate64module.c")
 
     binary_extension = Extension(**kwargs)
 
@@ -75,7 +79,6 @@ class my_egg_info(egg_info):
 
 
 setup(
-    use_scm_version={"local_scheme": "no-local-version"},
     ext_modules=[binary_extension],
     package_dir={"": "src"},
     packages=packages,

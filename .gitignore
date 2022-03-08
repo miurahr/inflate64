@@ -10,3 +10,8 @@ dist
 __pycache__
 *.so
 *.pyd
+# GNU Global files
+GPATH
+GRTAGS
+GTAGS
+HTML

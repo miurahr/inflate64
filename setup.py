@@ -8,14 +8,14 @@ from setuptools.command.build_ext import build_ext
 from setuptools.command.egg_info import egg_info
 
 sources = [
-    "src/lib/deflate9.c",
-    "src/lib/inflate9.c",
-    "src/lib/inftree9.c",
-    "src/lib/trees.c",
+    "src/lib/deflate.c",
+    "src/lib/inflate.c",
+    "src/lib/inftree.c",
+    "src/lib/deftree.c",
     "src/lib/zutil.c"
 ]
 _deflate64_extension = Extension("inflate64._inflate64", sources)
-kwargs = {"include_dirs": ["src/lib"], "library_dirs": [], "libraries": [], "sources": sources, "define_macros": []}
+kwargs = {"include_dirs": ["src/lib", "src/ext"], "library_dirs": [], "libraries": [], "sources": sources, "define_macros": []}
 
 
 def has_option(option):

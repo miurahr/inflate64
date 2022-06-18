@@ -2,8 +2,8 @@ import argparse
 import os
 import pathlib
 
-import github
 import bench_result as bench
+import github
 
 
 class CommentBenchmark:

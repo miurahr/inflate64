@@ -40,9 +40,7 @@ def generate_table(benchmarks: dict, group, type="simple") -> str:
             max = bm["stats"]["max"]
             avr = bm["stats"]["mean"]
             table.append([target, rate, min, max, avr])
-    return tabulate(
-        table, headers=["target", "speed(MB/sec)", "min(sec)", "max(sec)", "mean(sec)"], tablefmt=type
-    )
+    return tabulate(table, headers=["target", "speed(MB/sec)", "min(sec)", "max(sec)", "mean(sec)"], tablefmt=type)
 
 
 def generate_comment(results_file, type):

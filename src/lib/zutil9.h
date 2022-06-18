@@ -19,6 +19,8 @@
 #  define ZLIB_INTERNAL
 #endif
 
+#  define local
+
 #include "zlib.h"
 
 #if defined(STDC) && !defined(Z_SOLO)
@@ -30,7 +32,7 @@
 #endif
 
 #ifndef local
-#  define local static
+// #  define local static
 #endif
 /* since "static" is used to mean two completely different things in C, we
    define "local" for the non-static meaning of "static", for readability

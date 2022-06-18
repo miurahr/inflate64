@@ -2,9 +2,7 @@ from threading import Lock
 
 from ._cffi_inflate64 import ffi, lib
 
-__all__ = (
-    "Inflate64Error",
-)
+__all__ = ("Inflate64Error",)
 
 
 _BLOCK_SIZE = 16384

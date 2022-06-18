@@ -15,8 +15,8 @@ set(DEBUG_BUILD ON)
 # Configuration for python-ext
 set(Python_FIND_STRATEGY VERSION)
 find_package(Python ${PY_VERSION}.0...${PY_VERSION}.99 COMPONENTS Interpreter Development)
-set(PY_EXT_FILE _deflate9)
-set(PY_CFFI_FILE _deflate9)
+set(PY_EXT_FILE _inflate64)
+set(PY_CFFI_FILE _inflate64)
 set(PY_EXT_DIR src/inflate64/c)
 set(PY_CFFI_DIR src/inflate64/cffi)
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/get_ext.py
@@ -161,23 +161,32 @@ else()
 endif()
 target_include_directories(pytest_runner PRIVATE ${Python_INCLUDE_DIRS})
 target_link_libraries(pytest_runner PRIVATE ${Python_LIBRARIES})
-add_dependencies(pytest_runner venv.stamp generate_ext generate_cffi)
+add_dependencies(pytest_runner venv.stamp generate_ext)
 
 # ##################################################################################################
 # for build test and analytics
 include_directories(src/lib)
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 add_library(inflate64
-            src/lib/deflate9.c
-            src/lib/inflate9.c
-            src/lib/inftree9.c
-            src/lib/trees.c
-            src/lib/zutil.c
-            )
+        src/ext/_inflate64module.c
+        src/lib/deflate.c
+        src/lib/inflate.c
+        src/lib/inftree.c
+        src/lib/deftree.c
+        src/lib/zutil.c
+        )
 set_target_properties(inflate64 PROPERTIES
         POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS}
         VISIBILITY_INLINES_HIDDEN ON
         )
 target_include_directories(inflate64 PRIVATE ${Python_INCLUDE_DIRS})
 target_link_libraries(inflate64 PRIVATE ${Python_LIBRARIES})
+# ##################################################################################################
+# make table utility
+add_executable(makefixed9
+        src/utils/makefixed.c
+        src/lib/inflate.c
+        src/lib/inftree.c
+        src/lib/zutil.c
+        )
 # ##################################################################################################

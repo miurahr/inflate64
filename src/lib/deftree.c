@@ -32,7 +32,7 @@
 
 /* @(#) $Id$ */
 
-/* #define GEN_TREES_H */
+// #define GEN_TREES_H
 
 #include "deflate9.h"
 
@@ -59,11 +59,11 @@
 #define REPZ_11_138  18
 /* repeat a zero length 11-138 times  (7 bits of repeat count) */
 
-local const int extra_lbits[LENGTH_CODES] /* extra bits for each length code */
-   = {0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,0};
+local const int extra_lbits[LENGTH_CODES] /* extra bits for each length code */ /* extended to deflate64 */
+        = {0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6, 0};
 
-local const int extra_dbits[D_CODES] /* extra bits for each distance code */
-   = {0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13};
+local const int extra_dbits[D_CODES] /* extra bits for each distance code */ /* extended for deflate64 */
+   = {0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13, 14, 14};
 
 local const int extra_blbits[BL_CODES]/* extra bits for each bit length code */
    = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,7};
@@ -111,7 +111,7 @@ local int base_dist[D_CODES];
 /* First normalized distance for each code (0 = distance of 1) */
 
 #else
-#  include "trees.h"
+#  include "deftree.h"
 #endif /* GEN_TREES_H */
 
 struct static_tree_desc_s {
@@ -325,7 +325,7 @@ local void tr_static_init()
 
 void gen_trees_header()
 {
-    FILE *header = fopen("trees.h", "w");
+    FILE *header = fopen("deftree.h", "w");
     int i;
 
     Assert (header != NULL, "Can't open trees.h");

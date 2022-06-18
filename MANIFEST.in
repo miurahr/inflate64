@@ -1,20 +1,13 @@
 include *.rst
-include *.txt
-include tox.ini
-
-recursive-include lib *.h
-recursive-include lib *.c
-recursive-include lib *.txt
-
+include .flake8
+include CMakeLists.txt
 recursive-include src *.py
 recursive-include src py.typed
 recursive-include src *.c
-
+recursive-include src *.h
+recursive-include src *.txt
 recursive-include tests *.py
-
-recursive-include utils *.py
-recursive-include utils *.txt
-
+recursive-include tests *.bin
 exclude .gitignore
 exclude .gitattributes
 prune .github

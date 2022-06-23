@@ -11,6 +11,7 @@
 /* Possible inflate modes between inflate() calls */
 typedef enum {
     TYPE,       /* i: waiting for type bits, including last-flag bit */
+    TYPED0,
     STORED,     /* i: waiting for stored size (length and complement) */
     COPY_,
     COPY,

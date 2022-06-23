@@ -71,14 +71,11 @@ z_streamp strm;
 int ZEXPORT inflate9Reset2(strm)
 z_streamp strm;
 {
-    int wrap;
     struct inflate_state FAR *state;
 
     /* get the state */
     if (inflate9StateCheck(strm)) return Z_STREAM_ERROR;
     state = (struct inflate_state FAR *)strm->state;
-
-    wrap = 0;
 
     if (state->window != Z_NULL) {
         ZFREE(strm, state->window);
@@ -86,7 +83,7 @@ z_streamp strm;
     }
 
     /* update state and reset the rest of it */
-    state->wrap = wrap;
+    state->wrap = 0;
     state->wbits = WBITS64;
     return inflate9Reset(strm);
 }
@@ -464,8 +461,8 @@ int flush;
     unsigned long left;         /* available output */
     unsigned long hold;         /* bit buffer */
     unsigned bits;              /* bits in bit buffer */
-    unsigned in;                /* save starting available input and output */
-    unsigned long out;
+    unsigned in;                /* save starting available input */
+    unsigned long out;          /* save starting available output */
     unsigned long copy;         /* number of stored or match bytes to copy */
     unsigned char FAR *from;    /* where to copy match bytes from */
     code here;                  /* current decoding table entry */
@@ -487,9 +484,11 @@ int flush;
     for (;;)
         switch (state->mode) {
         case TYPE:
+            /* fallthrough */
+        case TYPED0:
             if (state->last) {
                 BYTEBITS();
-                state->mode = DONE;
+                state->mode = DONE;  /* no check */
                 break;
             }
             NEEDBITS(3);
@@ -506,10 +505,6 @@ int flush;
                 Tracev((stderr, "inflate:     fixed codes block%s\n",
                         state->last ? " (last)" : ""));
                 state->mode = LEN;             /* decode codes */
-                if (flush == Z_TREES) {
-                    DROPBITS(2);
-                    goto inf_leave;
-                }
                 break;
             case 2:                             /* dynamic block */
                 Tracev((stderr, "inflate:     dynamic codes block%s\n",
@@ -535,7 +530,6 @@ int flush;
                     state->length));
             INITBITS();
             state->mode = COPY_;
-            if (flush == Z_TREES) goto inf_leave;
                 /* fallthrough */
         case COPY_:
             state->mode = COPY;
@@ -565,6 +559,11 @@ int flush;
             DROPBITS(5);
             state->ncode = BITS(4) + 4;
             DROPBITS(4);
+            if (state->nlen > 286 || state->ndist > 30) {
+                strm->msg = (char *)"too many length symbols";
+                state->mode = BAD;
+                break;
+            }
             Tracev((stderr, "inflate:       table sizes ok\n"));
             state->have = 0;
             state->mode = LENLENS;
@@ -611,7 +610,7 @@ int flush;
                             state->mode = BAD;
                             break;
                         }
-                        len = state->lens[state->have - 1];
+                        len = (unsigned)(state->lens[state->have - 1]);
                         copy = 3 + BITS(2);
                         DROPBITS(2);
                     }
@@ -673,7 +672,6 @@ int flush;
             }
             Tracev((stderr, "inflate:       codes ok\n"));
             state->mode = LEN;
-            if (flush == Z_TREES) goto inf_leave;
                 /* fallthrough */
         case LEN_:
             state->mode = LEN;
@@ -699,6 +697,7 @@ int flush;
             DROPBITS(here.bits);
             state->back += here.bits;
             state->length = (unsigned)here.val;
+            /* process literal */
             if ((int)(here.op) == 0) {
                 Tracevv((stderr, here.val >= 0x20 && here.val < 0x7f ?
                         "inflate:         literal '%c'\n" :
@@ -706,21 +705,24 @@ int flush;
                 state->mode = LIT;
                 break;
             }
+            /* process end of block */
             if (here.op & 32) {
                 Tracevv((stderr, "inflate:         end of block\n"));
                 state->back = -1;
                 state->mode = TYPE;
                 break;
             }
+            /* invalid code */
             if (here.op & 64) {
                 strm->msg = (char *)"invalid literal/length code";
                 state->mode = BAD;
                 break;
             }
-            state->extra = (unsigned)(here.op) & 15;
+            state->extra = (unsigned)(here.op) & 31;  // use 31 instead of 15
             state->mode = LENEXT;
                 /* fallthrough */
         case LENEXT:
+            /* length code */
             if (state->extra) {
                 NEEDBITS(state->extra);
                 state->length += BITS(state->extra);
@@ -732,12 +734,13 @@ int flush;
             state->mode = DIST;
                 /* fallthrough */
         case DIST:
+            /* get distance code */
             for (;;) {
                 here = state->distcode[BITS(state->distbits)];
                 if ((unsigned)(here.bits) <= bits) break;
                 PULLBYTE();
             }
-            if ((here.op & 0xf0) == 0) {
+            if ((here.op & 0xf0) == 0) { // XXX 0xe0 ?
                 last = here;
                 for (;;) {
                     here = state->distcode[last.val +
@@ -756,7 +759,8 @@ int flush;
                 break;
             }
             state->offset = (unsigned)here.val;
-            state->extra = (unsigned)(here.op) & 15;
+            /* get distance extra bits, if any */
+            state->extra = (unsigned)(here.op) & 31;  // XXX 31 instead of 15
             state->mode = DISTEXT;
                 /* fallthrough */
         case DISTEXT:
@@ -766,13 +770,6 @@ int flush;
                 DROPBITS(state->extra);
                 state->back += state->extra;
             }
-#ifdef INFLATE_STRICT
-            if (state->offset > state->dmax) {
-                strm->msg = (char *)"invalid distance too far back";
-                state->mode = BAD;
-                break;
-            }
-#endif
             Tracevv((stderr, "inflate:         distance %u\n", state->offset));
             state->mode = MATCH;
                 /* fallthrough */
@@ -788,15 +785,15 @@ int flush;
                         break;
                     }
                 }
+                // FIXME.
                 if (copy > state->wnext) {
                     copy -= state->wnext;
                     from = state->window + (state->wsize - copy);
-                }
-                else
+                } else {
                     from = state->window + (state->wnext - copy);
+                }
                 if (copy > state->length) copy = state->length;
-            }
-            else {                              /* copy from output */
+            } else {                              // copy from output
                 from = put - state->offset;
                 copy = state->length;
             }
@@ -835,7 +832,7 @@ int flush;
   inf_leave:
     RESTORE();
     if (state->wsize || (out != strm->avail_out && state->mode < BAD &&
-            (state->mode < CHECK || flush != Z_FINISH)))
+       (state->mode < CHECK || flush != Z_FINISH)))
         if (updatewindow(strm, strm->next_out, out - strm->avail_out)) {
             state->mode = MEM;
             return Z_MEM_ERROR;

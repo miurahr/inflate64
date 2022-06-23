@@ -97,14 +97,14 @@ typedef struct internal_state {
     unsigned long   pending_buf_size; /* size of pending_buf */
     Bytef *pending_out;  /* next pending byte to output to the stream */
     unsigned long   pending;       /* nb of bytes in the pending buffer */
-    int   wrap;          /* bit 0 true for zlib, bit 1 true for gzip */
+    int   wrap;          /* XXX */
     int   last_flush;    /* value of flush param for previous deflate call */
 
                 /* used by deflate.c: */
 
-    uInt  w_size;        /* LZ77 window size (32K by default) */
-    uInt  w_bits;        /* log2(w_size)  (8..16) */
-    uInt  w_mask;        /* w_size - 1 */
+    unsigned long  w_size;        /* LZ77 window size (64K for deflate64) */
+    uInt w_bits;                  /* 8..16 */
+    unsigned long  w_mask;        /* w_size - 1 */
 
     Bytef *window;
     /* Sliding window. Input bytes are read into the second half of the window,

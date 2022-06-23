@@ -567,12 +567,12 @@ Inflater_inflate(compobject *self,  PyObject *args, PyObject *kwargs) {
                 case Z_STREAM_END:
                     break;
                 default:
-                    break;
+                    goto save;
             }
         } while (self->zst.avail_out == 0);
     } while (err != Z_STREAM_END && ibuflen != 0);
 
-     save:
+save:
     if (save_unconsumed_input(self, &data, err) < 0)
         goto abort;
 

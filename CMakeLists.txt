@@ -166,21 +166,16 @@ add_dependencies(pytest_runner venv.stamp generate_ext)
 # ##################################################################################################
 # for build test and analytics
 include_directories(src/lib)
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
-add_library(inflate64
-        src/ext/_inflate64module.c
+add_library(inflate_ STATIC
         src/lib/deflate.c
         src/lib/inflate.c
         src/lib/inftree.c
         src/lib/deftree.c
         src/lib/zutil.c
         )
-set_target_properties(inflate64 PROPERTIES
-        POSITION_INDEPENDENT_CODE ${BUILD_SHARED_LIBS}
-        VISIBILITY_INLINES_HIDDEN ON
-        )
-target_include_directories(inflate64 PRIVATE ${Python_INCLUDE_DIRS})
-target_link_libraries(inflate64 PRIVATE ${Python_LIBRARIES})
+set_target_properties(inflate_ PROPERTIES POSITION_INDEPENDENT_CODE ON VISIBILITY_INLINES_HIDDEN ON)
+Python_add_library(inflate64 MODULE WITH_SOABI src/ext/_inflate64module.c)
+target_link_libraries(inflate64 PUBLIC inflate_)
 # ##################################################################################################
 # make table utility
 add_executable(makefixed9

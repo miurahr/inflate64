@@ -31,10 +31,8 @@ dependencies = [
 keywords = ['deflate64', 'compression']
 dynamic = ["version"]
 [project.optional-dependencies]
-test_compat = ["libarchive-c"]
 test = [
       "pytest",
-      "pytest-benchmark",
       "pytest-cov",
       "pytest-timeout",
       "pyannotate",
@@ -139,7 +137,7 @@ archs = ["x86_64", "arm64"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = check, py{37,38,39,310}, pypy3
+envlist = check, py{37,38,39,310}
 
 [testenv]
 passenv = GITHUB_* PYTEST_ADDOPTS
@@ -162,5 +160,4 @@ python =
     3.8: py38, check
     3.9: py39
     3.10: py310
-    pypy-3: pypy3
 """

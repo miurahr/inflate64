@@ -1,22 +1,9 @@
 from importlib.metadata import PackageNotFoundError, version
 
-# try:
 from .c.c_inflate64 import (  # noqa
-    Deflater,
     Inflater,
     Inflate64Error,
 )
-
-# except ImportError:
-#    try:
-#        from .cffi.cffi_inflate64 import (  # noqa
-#            Deflater,
-#            Inflater,
-#            Inflate64Error,
-#        )
-#    except ImportError:
-#        msg = "inflate64 module: Neither C implementation nor CFFI implementation can be imported."
-#        raise ImportError(msg)
 
 __all__ = ()
 

@@ -26,7 +26,7 @@ def has_option(option):
         return False
 
 
-if has_option("--cffi") or platform.python_implementation() == "PyPy":
+if has_option("--cffi"): # or platform.python_implementation() == "PyPy":
     # packages
     packages = ["inflate64", "inflate64.cffi"]
 

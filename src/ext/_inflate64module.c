@@ -579,7 +579,10 @@ save:
     if (err == Z_STREAM_END) {
         self->eof = 1;
     } else if (err != Z_OK && err != Z_BUF_ERROR) {
-        PyErr_SetString(PyExc_ValueError, "while decompressing data");
+        // Z_STREAM_ERROR (-2)
+        // Z_DATA_ERROR   (-3): case BAD
+        // Z_MEM_ERROR    (-4): case MEM
+        PyErr_Format(PyExc_ValueError, "while decompressing data: error code is %d", err);
         goto abort;
     }
     RetVal = OutputBuffer_Finish(&buffer, self->zst.avail_out);

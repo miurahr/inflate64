@@ -559,7 +559,7 @@ int flush;
             DROPBITS(5);
             state->ncode = BITS(4) + 4;
             DROPBITS(4);
-            if (state->nlen > 286 || state->ndist > 30) {
+            if (state->nlen > 288 || state->ndist > 33) {   // (state->nlen > 286 || state->ndist > 30)
                 strm->msg = (char *)"too many length symbols";
                 state->mode = BAD;
                 break;

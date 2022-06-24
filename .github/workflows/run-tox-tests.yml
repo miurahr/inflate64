@@ -35,7 +35,7 @@ jobs:
         with:
           fetch-depth: 20
       - name: Setup python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -99,7 +99,7 @@ jobs:
     if: github.ref == 'refs/heads/master'
     steps:
       - name: Setup python
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v4
         with:
           python-version: 3.8
           architecture: x64

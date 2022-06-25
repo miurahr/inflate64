@@ -33,11 +33,8 @@ dynamic = ["version"]
 [project.optional-dependencies]
 test = [
       "pytest",
-      "pytest-benchmark",
       "pytest-cov",
-      "pytest-timeout",
       "pyannotate",
-      "py-cpuinfo",
       "coverage[toml]>=5.2",
       "coveralls>=2.1.1",
       "atheris",

@@ -342,15 +342,9 @@ PyDoc_STRVAR(Deflater_doc, "A Deflate64 deflater.\n\n"
 static int
 Deflater_init(compobject *self, PyObject *args, PyObject *kwargs)
 {
-    static char *kwlist[] = {"level", NULL};
-    int level = Z_DEFAULT_COMPRESSION;
     /* only called once */
     if (self->is_initialised) {
         PyErr_SetString(PyExc_RuntimeError, init_twice_msg);
-        goto error;
-    }
-
-    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "|i:Deflater.__init__", kwlist, &level)) {
         goto error;
     }
 
@@ -359,7 +353,7 @@ Deflater_init(compobject *self, PyObject *args, PyObject *kwargs)
 
     self->is_initialised = 1;
 
-    int err = deflate9Init2(&self->zst, level);
+    int err = deflate9Init2(&self->zst);
     switch (err) {
         case Z_OK:
             goto success;

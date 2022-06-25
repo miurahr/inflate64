@@ -785,7 +785,6 @@ int flush;
                         break;
                     }
                 }
-                // FIXME.
                 if (copy > state->wnext) {
                     copy -= state->wnext;
                     from = state->window + (state->wsize - copy);

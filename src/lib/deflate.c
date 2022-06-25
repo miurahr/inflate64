@@ -79,8 +79,6 @@ typedef block_state (*compress_func) OF((deflate_state *s, int flush));
 local int deflateStateCheck      OF((z_streamp strm));
 local void slide_hash     OF((deflate_state *s));
 local void fill_window    OF((deflate_state *s));
-local block_state deflate_stored OF((deflate_state *s, int flush));
-local block_state deflate_fast   OF((deflate_state *s, int flush));
 local block_state deflate_slow   OF((deflate_state *s, int flush));
 local void lm_init        OF((deflate_state *s));
 local void putShortMSB    OF((deflate_state *s, uInt b));
@@ -112,7 +110,7 @@ local  void check_match OF((deflate_state *s, IPos start, IPos match,
 /* Matches of length 3 are discarded if their distance exceeds TOO_FAR */
 
 /* Values for max_lazy_match, good_match and max_chain_length, depending on
- * the desired pack level (0..9). The values given below have been tuned to
+ * the desired pack evel (0..9). The values given below have been tuned to
  * exclude worst case performance for pathological files. Better values may be
  * found for specific files.
  */
@@ -124,18 +122,7 @@ typedef struct config_s {
    compress_func func;
 } config;
 
-local const config configuration_table[10] = {
-/*      good lazy nice chain */
-/* 0 */ {0,    0,  0,    0, deflate_stored},  /* store only */
-/* 1 */ {4,    4,  8,    4, deflate_fast}, /* max speed, no lazy matches */
-/* 2 */ {4,    5, 16,    8, deflate_fast},
-/* 3 */ {4,    6, 32,   32, deflate_fast},
-/* 4 */ {4,    4, 16,   16, deflate_slow},  /* lazy matches */
-/* 5 */ {8,   16, 32,   32, deflate_slow},
-/* 6 */ {8,   16, 128, 128, deflate_slow},
-/* 7 */ {8,   32, 128, 256, deflate_slow},
-/* 8 */ {32, 128, 258, 1024, deflate_slow},
-/* 9 */ {32, 258, 258, 4096, deflate_slow}}; /* max compression */
+local const config configuration = {32, 258, 258, 4096, deflate_slow};
 
 /* Note: the deflate() code requires max_lazy >= MIN_MATCH and max_chain >= 4
  * For deflate_fast() (levels <= 3) good is ignored and lazy has a different
@@ -208,9 +195,8 @@ local void slide_hash(s)
 }
 
 /* ========================================================================= */
-int ZEXPORT deflate9Init2_(strm, level, memLevel, strategy)
+int ZEXPORT deflate9Init2_(strm, memLevel, strategy)
     z_streamp strm;
-    int  level;
     int  memLevel;
     int  strategy;
 {
@@ -234,9 +220,7 @@ int ZEXPORT deflate9Init2_(strm, level, memLevel, strategy)
         strm->zfree = zcfree;
 #endif
 
-    if (level == Z_DEFAULT_COMPRESSION) level = 6;
-
-    if (memLevel < 1 || memLevel > MAX_MEM_LEVEL || level < 0 || level > 9 ||
+    if (memLevel < 1 || memLevel > MAX_MEM_LEVEL ||
         strategy < 0 || strategy > Z_FIXED) {
         return Z_STREAM_ERROR;
     }
@@ -320,10 +304,9 @@ int ZEXPORT deflate9Init2_(strm, level, memLevel, strategy)
      * 64K-1 bytes.
      */
 
-    s->level = level;
     s->strategy = strategy;
 
-    return deflateReset(strm);
+    return deflate9Reset(strm);
 }
 
 /* =========================================================================
@@ -345,7 +328,7 @@ local int deflateStateCheck (strm)
 }
 
 /* ========================================================================= */
-int ZEXPORT deflateResetKeep (strm)
+int ZEXPORT deflate9ResetKeep (strm)
     z_streamp strm;
 {
     deflate_state *s;
@@ -376,12 +359,12 @@ int ZEXPORT deflateResetKeep (strm)
 }
 
 /* ========================================================================= */
-int ZEXPORT deflateReset (strm)
+int ZEXPORT deflate9Reset (strm)
     z_streamp strm;
 {
     int ret;
 
-    ret = deflateResetKeep(strm);
+    ret = deflate9ResetKeep(strm);
     if (ret == Z_OK)
         lm_init(strm->state);
     return ret;
@@ -497,7 +480,7 @@ int ZEXPORT deflate9 (strm, flush)
         (flush != Z_NO_FLUSH && s->status != FINISH_STATE)) {
         block_state bstate;
 
-        bstate = (*(configuration_table[s->level].func))(s, flush);
+        bstate = (*(configuration.func))(s, flush);
 
         if (bstate == finish_started || bstate == finish_done) {
             s->status = FINISH_STATE;
@@ -617,10 +600,10 @@ local void lm_init (s)
 
     /* Set the default configuration parameters:
      */
-    s->max_lazy_match   = configuration_table[s->level].max_lazy;
-    s->good_match       = configuration_table[s->level].good_length;
-    s->nice_match       = configuration_table[s->level].nice_length;
-    s->max_chain_length = configuration_table[s->level].max_chain;
+    s->max_lazy_match   = configuration.max_lazy;
+    s->good_match       = configuration.good_length;
+    s->nice_match       = configuration.nice_length;
+    s->max_chain_length = configuration.max_chain;
 
     s->strstart = 0;
     s->block_start = 0L;
@@ -981,302 +964,6 @@ local void fill_window(s)
 #define MIN(a, b) ((a) > (b) ? (b) : (a))
 
 /* ===========================================================================
- * Copy without compression as much as possible from the input stream, return
- * the current block state.
- *
- * In case deflateParams() is used to later switch to a non-zero compression
- * level, s->matches (otherwise unused when storing) keeps track of the number
- * of hash table slides to perform. If s->matches is 1, then one hash table
- * slide will be done when switching. If s->matches is 2, the maximum value
- * allowed here, then the hash table will be cleared, since two or more slides
- * is the same as a clear.
- *
- * deflate_stored() is written to minimize the number of times an input byte is
- * copied. It is most efficient with large input and output buffers, which
- * maximizes the opportunites to have a single copy from next_in to next_out.
- */
-local block_state deflate_stored(s, flush)
-    deflate_state *s;
-    int flush;
-{
-    /* Smallest worthy block size when not flushing or finishing. By default
-     * this is 32K. This can be as small as 507 bytes for memLevel == 1. For
-     * large input and output buffers, the stored block size will be larger.
-     */
-    unsigned min_block = MIN(s->pending_buf_size - 5, s->w_size);
-
-    /* Copy as many min_block or larger stored blocks directly to next_out as
-     * possible. If flushing, copy the remaining available input to next_out as
-     * stored blocks, if there is enough space.
-     */
-    unsigned len, left, have, last = 0;
-    unsigned used = s->strm->avail_in;
-    do {
-        /* Set len to the maximum size block that we can copy directly with the
-         * available input data and output space. Set left to how much of that
-         * would be copied from what's left in the window.
-         */
-        len = MAX_STORED;       /* maximum deflate stored block length */
-        have = (s->bi_valid + 42) >> 3;         /* number of header bytes */
-        if (s->strm->avail_out < have)          /* need room for header */
-            break;
-            /* maximum stored block length that will fit in avail_out: */
-        have = s->strm->avail_out - have;
-        left = s->strstart - s->block_start;    /* bytes left in window */
-        if (len > (unsigned long)left + s->strm->avail_in)
-            len = left + s->strm->avail_in;     /* limit len to the input */
-        if (len > have)
-            len = have;                         /* limit len to the output */
-
-        /* If the stored block would be less than min_block in length, or if
-         * unable to copy all of the available input when flushing, then try
-         * copying to the window and the pending buffer instead. Also don't
-         * write an empty block when flushing -- deflate() does that.
-         */
-        if (len < min_block && ((len == 0 && flush != Z_FINISH) ||
-                                flush == Z_NO_FLUSH ||
-                                len != left + s->strm->avail_in))
-            break;
-
-        /* Make a dummy stored block in pending to get the header bytes,
-         * including any pending bits. This also updates the debugging counts.
-         */
-        last = flush == Z_FINISH && len == left + s->strm->avail_in ? 1 : 0;
-        _tr_stored_block(s, (char *)0, 0L, last);
-
-        /* Replace the lengths in the dummy stored block with len. */
-        s->pending_buf[s->pending - 4] = len;
-        s->pending_buf[s->pending - 3] = len >> 8;
-        s->pending_buf[s->pending - 2] = ~len;
-        s->pending_buf[s->pending - 1] = ~len >> 8;
-
-        /* Write the stored block header bytes. */
-        flush_pending(s->strm);
-
-#ifdef ZLIB_DEBUG
-        /* Update debugging counts for the data about to be copied. */
-        s->compressed_len += len << 3;
-        s->bits_sent += len << 3;
-#endif
-
-        /* Copy uncompressed bytes from the window to next_out. */
-        if (left) {
-            if (left > len)
-                left = len;
-            zmemcpy(s->strm->next_out, s->window + s->block_start, left);
-            s->strm->next_out += left;
-            s->strm->avail_out -= left;
-            s->strm->total_out += left;
-            s->block_start += left;
-            len -= left;
-        }
-
-        /* Copy uncompressed bytes directly from next_in to next_out, updating
-         * the check value.
-         */
-        if (len) {
-            read_buf(s->strm, s->strm->next_out, len);
-            s->strm->next_out += len;
-            s->strm->avail_out -= len;
-            s->strm->total_out += len;
-        }
-    } while (last == 0);
-
-    /* Update the sliding window with the last s->w_size bytes of the copied
-     * data, or append all of the copied data to the existing window if less
-     * than s->w_size bytes were copied. Also update the number of bytes to
-     * insert in the hash tables, in the event that deflateParams() switches to
-     * a non-zero compression level.
-     */
-    used -= s->strm->avail_in;      /* number of input bytes directly copied */
-    if (used) {
-        /* If any input was used, then no unused input remains in the window,
-         * therefore s->block_start == s->strstart.
-         */
-        if (used >= s->w_size) {    /* supplant the previous history */
-            s->matches = 2;         /* clear hash */
-            zmemcpy(s->window, s->strm->next_in - s->w_size, s->w_size);
-            s->strstart = s->w_size;
-            s->insert = s->strstart;
-        }
-        else {
-            if (s->window_size - s->strstart <= used) {
-                /* Slide the window down. */
-                s->strstart -= s->w_size;
-                zmemcpy(s->window, s->window + s->w_size, s->strstart);
-                if (s->matches < 2)
-                    s->matches++;   /* add a pending slide_hash() */
-                if (s->insert > s->strstart)
-                    s->insert = s->strstart;
-            }
-            zmemcpy(s->window + s->strstart, s->strm->next_in - used, used);
-            s->strstart += used;
-            s->insert += MIN(used, s->w_size - s->insert);
-        }
-        s->block_start = s->strstart;
-    }
-    if (s->high_water < s->strstart)
-        s->high_water = s->strstart;
-
-    /* If the last block was written to next_out, then done. */
-    if (last)
-        return finish_done;
-
-    /* If flushing and all input has been consumed, then done. */
-    if (flush != Z_NO_FLUSH && flush != Z_FINISH &&
-        s->strm->avail_in == 0 && (long)s->strstart == s->block_start)
-        return block_done;
-
-    /* Fill the window with any remaining input. */
-    have = s->window_size - s->strstart;
-    if (s->strm->avail_in > have && s->block_start >= (long)s->w_size) {
-        /* Slide the window down. */
-        s->block_start -= s->w_size;
-        s->strstart -= s->w_size;
-        zmemcpy(s->window, s->window + s->w_size, s->strstart);
-        if (s->matches < 2)
-            s->matches++;           /* add a pending slide_hash() */
-        have += s->w_size;          /* more space now */
-        if (s->insert > s->strstart)
-            s->insert = s->strstart;
-    }
-    if (have > s->strm->avail_in)
-        have = s->strm->avail_in;
-    if (have) {
-        read_buf(s->strm, s->window + s->strstart, have);
-        s->strstart += have;
-        s->insert += MIN(have, s->w_size - s->insert);
-    }
-    if (s->high_water < s->strstart)
-        s->high_water = s->strstart;
-
-    /* There was not enough avail_out to write a complete worthy or flushed
-     * stored block to next_out. Write a stored block to pending instead, if we
-     * have enough input for a worthy block, or if flushing and there is enough
-     * room for the remaining input as a stored block in the pending buffer.
-     */
-    have = (s->bi_valid + 42) >> 3;         /* number of header bytes */
-        /* maximum stored block length that will fit in pending: */
-    have = MIN(s->pending_buf_size - have, MAX_STORED);
-    min_block = MIN(have, s->w_size);
-    left = s->strstart - s->block_start;
-    if (left >= min_block ||
-        ((left || flush == Z_FINISH) && flush != Z_NO_FLUSH &&
-         s->strm->avail_in == 0 && left <= have)) {
-        len = MIN(left, have);
-        last = flush == Z_FINISH && s->strm->avail_in == 0 &&
-               len == left ? 1 : 0;
-        _tr_stored_block(s, (charf *)s->window + s->block_start, len, last);
-        s->block_start += len;
-        flush_pending(s->strm);
-    }
-
-    /* We've done all we can with the available input and output. */
-    return last ? finish_started : need_more;
-}
-
-/* ===========================================================================
- * Compress as much as possible from the input stream, return the current
- * block state.
- * This function does not perform lazy evaluation of matches and inserts
- * new strings in the dictionary only for unmatched strings or for short
- * matches. It is used only for the fast compression options.
- */
-local block_state deflate_fast(s, flush)
-    deflate_state *s;
-    int flush;
-{
-    IPos hash_head;       /* head of the hash chain */
-    int bflush;           /* set if current block must be flushed */
-
-    for (;;) {
-        /* Make sure that we always have enough lookahead, except
-         * at the end of the input file. We need MAX_MATCH bytes
-         * for the next match, plus MIN_MATCH bytes to insert the
-         * string following the next match.
-         */
-        if (s->lookahead < MIN_LOOKAHEAD) {
-            fill_window(s);
-            if (s->lookahead < MIN_LOOKAHEAD && flush == Z_NO_FLUSH) {
-                return need_more;
-            }
-            if (s->lookahead == 0) break; /* flush the current block */
-        }
-
-        /* Insert the string window[strstart .. strstart+2] in the
-         * dictionary, and set hash_head to the head of the hash chain:
-         */
-        hash_head = NIL;
-        if (s->lookahead >= MIN_MATCH) {
-            INSERT_STRING(s, s->strstart, hash_head);
-        }
-
-        /* Find the longest match, discarding those <= prev_length.
-         * At this point we have always match_length < MIN_MATCH
-         */
-        if (hash_head != NIL && s->strstart - hash_head <= MAX_DIST(s)) {
-            /* To simplify the code, we prevent matches with the string
-             * of window index 0 (in particular we have to avoid a match
-             * of the string with itself at the start of the input file).
-             */
-            s->match_length = longest_match (s, hash_head);
-            /* longest_match() sets match_start */
-        }
-        if (s->match_length >= MIN_MATCH) {
-            check_match(s, s->strstart, s->match_start, s->match_length);
-
-            _tr_tally_dist(s, s->strstart - s->match_start,
-                           s->match_length - MIN_MATCH, bflush);
-
-            s->lookahead -= s->match_length;
-
-            /* Insert new strings in the hash table only if the match length
-             * is not too large. This saves time but degrades compression.
-             */
-            if (s->match_length <= s->max_insert_length &&
-                s->lookahead >= MIN_MATCH) {
-                s->match_length--; /* string at strstart already in table */
-                do {
-                    s->strstart++;
-                    INSERT_STRING(s, s->strstart, hash_head);
-                    /* strstart never exceeds WSIZE-MAX_MATCH, so there are
-                     * always MIN_MATCH bytes ahead.
-                     */
-                } while (--s->match_length != 0);
-                s->strstart++;
-            } else
-            {
-                s->strstart += s->match_length;
-                s->match_length = 0;
-                s->ins_h = s->window[s->strstart];
-                UPDATE_HASH(s, s->ins_h, s->window[s->strstart+1]);
-#if MIN_MATCH != 3
-                Call UPDATE_HASH() MIN_MATCH-3 more times
-#endif
-                /* If lookahead < MIN_MATCH, ins_h is garbage, but it does not
-                 * matter since it will be recomputed at next deflate call.
-                 */
-            }
-        } else {
-            /* No match, output a literal byte */
-            Tracevv((stderr,"%c", s->window[s->strstart]));
-            _tr_tally_lit (s, s->window[s->strstart], bflush);
-            s->lookahead--;
-            s->strstart++;
-        }
-        if (bflush) FLUSH_BLOCK(s, 0);
-    }
-    s->insert = s->strstart < MIN_MATCH-1 ? s->strstart : MIN_MATCH-1;
-    if (flush == Z_FINISH) {
-        FLUSH_BLOCK(s, 1);
-        return finish_done;
-    }
-    if (s->sym_next)
-        FLUSH_BLOCK(s, 0);
-    return block_done;
-}
-
-/* ===========================================================================
  * Same as above, but achieves better compression. We use a lazy
  * evaluation for matches: a match is finally adopted only if there is
  * no better match at the next window position.
@@ -1326,10 +1013,6 @@ local block_state deflate_slow(s, flush)
             /* longest_match() sets match_start */
 
             if (s->match_length <= 5 && (s->strategy == Z_FILTERED
-#if TOO_FAR <= 32767
-                || (s->match_length == MIN_MATCH &&
-                    s->strstart - s->match_start > TOO_FAR)
-#endif
                 )) {
 
                 /* If prev_match is also MIN_MATCH, match_start is garbage

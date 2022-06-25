@@ -22,15 +22,18 @@
 extern "C" {
 #endif
 
+
+ZEXTERN int ZEXPORT deflate9Reset OF((z_stream FAR *strm));
+ZEXTERN int ZEXPORT deflate9ResetKeep OF((z_stream FAR *strm));
+
 ZEXTERN int ZEXPORT deflate9 OF((z_stream FAR *strm, int flush));
 ZEXTERN int ZEXPORT deflate9End OF((z_stream FAR *strm));
 ZEXTERN int ZEXPORT deflate9Init2_ OF((z_stream FAR *strm,
-                                       int  level,
                                        int  memLevel,
                                        int  strategy));
 
-#define deflate9Init2(strm, level) \
-        deflate9Init2_((strm), (level), MEM_LEVEL64, Z_DEFAULT_STRATEGY)
+#define deflate9Init2(strm) \
+        deflate9Init2_((strm), MEM_LEVEL64, Z_DEFAULT_STRATEGY)
 
 ZEXTERN int ZEXPORT inflate9 OF((z_stream FAR *strm, int flush));
 ZEXTERN int ZEXPORT inflate9End OF((z_stream FAR *strm));

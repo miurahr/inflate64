@@ -80,7 +80,7 @@ add_custom_target(
         COMMAND ${CMAKE_COMMAND} -E touch venv.stamp)
 set(VPKG_PATH_A "${VENV_PATH}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages/")
 set(VPKG_PATH_B "${VENV_PATH}/Lib/site-packages/")
-
+set(VPKG_PATH_C "${CMAKE_BINARY_DIR}")
 # ##################################################################################################
 # For pytest
 file(
@@ -104,11 +104,13 @@ int main(int argc, char **argv) {
     }
     std::filesystem::path vsite_path_a = \"${VPKG_PATH_A}\";
     std::filesystem::path vsite_path_b = \"${VPKG_PATH_B}\";
+    std::filesystem::path vsite_path_c = \"${VPKG_PATH_C}\";
     std::string pycode =
         \"import sys\\n\"
-        \"sys.path.append('src')\\n\"
         \"sys.path.append('\" + vsite_path_a.string() + \"')\\n\"
         \"sys.path.append('\" + vsite_path_b.string() + \"')\\n\"
+        \"sys.path.append('\" + vsite_path_c.string() + \"')\\n\"
+        \"sys.path.append('src')\\n\"
         \"import pytest\\n\"
         \"pytest.main(\" + args + \")\\n\";
     wchar_t * program_name = Py_DecodeLocale(argv[0], NULL);
@@ -161,7 +163,7 @@ else()
 endif()
 target_include_directories(pytest_runner PRIVATE ${Python_INCLUDE_DIRS})
 target_link_libraries(pytest_runner PRIVATE ${Python_LIBRARIES})
-add_dependencies(pytest_runner venv.stamp generate_ext)
+add_dependencies(pytest_runner venv.stamp)
 
 # ##################################################################################################
 # for build test and analytics
@@ -174,8 +176,9 @@ add_library(inflate_ STATIC
         src/lib/zutil.c
         )
 set_target_properties(inflate_ PROPERTIES POSITION_INDEPENDENT_CODE ON VISIBILITY_INLINES_HIDDEN ON)
-Python_add_library(inflate64 MODULE WITH_SOABI src/ext/_inflate64module.c)
-target_link_libraries(inflate64 PUBLIC inflate_)
+target_compile_definitions(inflate_ PRIVATE -DZLIB_DEBUG)
+Python_add_library(_inflate64 MODULE WITH_SOABI src/ext/_inflate64module.c)
+target_link_libraries(_inflate64 PUBLIC inflate_)
 # ##################################################################################################
 # make table utility
 add_executable(makefixed9

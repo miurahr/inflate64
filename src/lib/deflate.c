@@ -67,7 +67,7 @@ typedef enum {
 local int deflateStateCheck      OF((z_streamp strm));
 local void slide_hash     OF((deflate_state *s));
 local void fill_window    OF((deflate_state *s));
-local block_state deflate_slow   OF((deflate_state *s, int flush));
+local block_state deflate9_  OF((deflate_state *s, int flush));
 local void lm_init        OF((deflate_state *s));
 local void flush_pending  OF((z_streamp strm));
 local unsigned read_buf   OF((z_streamp strm, Bytef *buf, unsigned size));
@@ -398,7 +398,7 @@ int ZEXPORT deflate9 (strm, flush)
         (flush != Z_NO_FLUSH && s->status != FINISH_STATE)) {
         block_state bstate;
 
-        bstate = deflate_slow(s, flush);
+        bstate = deflate9_(s, flush);
 
         if (bstate == finish_started || bstate == finish_done) {
             s->status = FINISH_STATE;
@@ -847,7 +847,7 @@ local void fill_window(s)
  * evaluation for matches: a match is finally adopted only if there is
  * no better match at the next window position.
  */
-local block_state deflate_slow(s, flush)
+local block_state deflate9_(s, flush)
     deflate_state *s;
     int flush;
 {

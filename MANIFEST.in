@@ -1,6 +1,7 @@
 include *.rst
 include .flake8
 include CMakeLists.txt
+include src/lib/README
 recursive-include src *.py
 recursive-include src py.typed
 recursive-include src *.c
@@ -8,6 +9,8 @@ recursive-include src *.h
 recursive-include src *.txt
 recursive-include tests *.py
 recursive-include tests *.bin
+recursive-include tests *.zip
+recursive-include tests *.10
 exclude .gitignore
 exclude .gitattributes
 prune .github

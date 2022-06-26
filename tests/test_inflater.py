@@ -40,7 +40,7 @@ def test_inflater_a():
         ("test-file.18", 29680, 3328),
         ("test-file.19", 33050, 3343),
         ("test-file.20", 39588, 3355),
-    ]
+    ],
 )
 def test_inflater_b(tmp_path, fname, offset, length):
     testdata = testdata_path.joinpath("test-file.zip")

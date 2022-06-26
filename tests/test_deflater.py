@@ -6,6 +6,7 @@ import inflate64
 BLOCKSIZE = 8192
 testdata_path = pathlib.Path(os.path.dirname(__file__)).joinpath("data")
 
+
 def test_deflater():
     deflater = inflate64.Deflater()
     with testdata_path.joinpath("test-file.10").open("rb") as f:

@@ -190,13 +190,6 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
   #pragma warn -8066
 #endif
 
-/* provide prototypes for these when building zlib without LFS */
-#if !defined(_WIN32) && \
-    (!defined(_LARGEFILE64_SOURCE) || _LFS64_LARGEFILE-0 == 0)
-    ZEXTERN uLong ZEXPORT adler32_combine64 OF((uLong, uLong, z_off_t));
-    ZEXTERN uLong ZEXPORT crc32_combine64 OF((uLong, uLong, z_off_t));
-#endif
-
         /* common defaults */
 
 #ifndef OS_CODE
@@ -256,12 +249,6 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 #  define Tracevv(x)
 #  define Tracec(c,x)
 #  define Tracecv(c,x)
-#endif
-
-#ifndef Z_SOLO
-   voidpf ZLIB_INTERNAL zcalloc OF((voidpf opaque, unsigned items,
-                                    unsigned size));
-   void ZLIB_INTERNAL zcfree  OF((voidpf opaque, voidpf ptr));
 #endif
 
 #define ZALLOC(strm, items, size) \

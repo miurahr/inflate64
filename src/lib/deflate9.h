@@ -97,7 +97,6 @@ typedef struct internal_state {
     unsigned long   pending_buf_size; /* size of pending_buf */
     Bytef *pending_out;  /* next pending byte to output to the stream */
     unsigned long   pending;       /* nb of bytes in the pending buffer */
-    int   wrap;          /* XXX */
     int   last_flush;    /* value of flush param for previous deflate call */
 
                 /* used by deflate.c: */

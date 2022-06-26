@@ -81,7 +81,6 @@ local void slide_hash     OF((deflate_state *s));
 local void fill_window    OF((deflate_state *s));
 local block_state deflate_slow   OF((deflate_state *s, int flush));
 local void lm_init        OF((deflate_state *s));
-local void putShortMSB    OF((deflate_state *s, uInt b));
 local void flush_pending  OF((z_streamp strm));
 local unsigned read_buf   OF((z_streamp strm, Bytef *buf, unsigned size));
 #ifdef ASMV
@@ -209,7 +208,6 @@ int ZEXPORT deflate9Init2(strm)
     s->strm = strm;
     s->status = INIT_STATE;     /* to pass state test in deflateReset() */
 
-    s->wrap = 0;
     s->w_bits = WBITS64;
     s->w_size = 1 << s->w_bits;
     s->w_mask = s->w_size - 1;
@@ -322,12 +320,8 @@ int ZEXPORT deflate9ResetKeep (strm)
     s->pending = 0;
     s->pending_out = s->pending_buf;
 
-    if (s->wrap < 0) {
-        s->wrap = -s->wrap; /* was made negative by deflate(..., Z_FINISH); */
-    }
     s->status =
         INIT_STATE;
-    strm->adler = adler32(0L, Z_NULL, 0);
     s->last_flush = -2;
 
     _tr_init(s);
@@ -345,27 +339,6 @@ int ZEXPORT deflate9Reset (strm)
     if (ret == Z_OK)
         lm_init(strm->state);
     return ret;
-}
-
-/* =========================================================================
- * For the default windowBits of 15 and memLevel of 8, this function returns
- * a close to exact, as well as small, upper bound on the compressed size.
- * They are coded as constants here for a reason--if the #define's are
- * changed, then this function needs to be changed as well.  The return
- * value for 15 and 8 only works for those exact settings.
- */
-
-/* =========================================================================
- * Put a short in the pending buffer. The 16-bit value is put in MSB order.
- * IN assertion: the stream state is correct and there is enough room in
- * pending_buf.
- */
-local void putShortMSB (s, b)
-    deflate_state *s;
-    uInt b;
-{
-    put_byte(s, (Byte)(b >> 8));
-    put_byte(s, (Byte)(b & 0xff));
 }
 
 /* =========================================================================
@@ -500,19 +473,7 @@ int ZEXPORT deflate9 (strm, flush)
     }
 
     if (flush != Z_FINISH) return Z_OK;
-    if (s->wrap <= 0) return Z_STREAM_END;
-
-    /* Write the trailer */
-    {
-        putShortMSB(s, (uInt)(strm->adler >> 16));
-        putShortMSB(s, (uInt)(strm->adler & 0xffff));
-    }
-    flush_pending(strm);
-    /* If avail_out is zero, the application will call deflate again
-     * to flush the rest.
-     */
-    if (s->wrap > 0) s->wrap = -s->wrap; /* write the trailer only once! */
-    return s->pending != 0 ? Z_OK : Z_STREAM_END;
+    return Z_STREAM_END;
 }
 
 /* ========================================================================= */
@@ -536,8 +497,8 @@ int ZEXPORT deflate9End (z_streamp strm) {
 }
 
 /* ===========================================================================
- * Read a new buffer from the current input stream, update the adler32
- * and total number of bytes read.  All deflate() input goes through
+ * Read a new buffer from the current input stream, * and total number of bytes read.
+ * All deflate() input goes through
  * this function so some applications may wish to modify it to avoid
  * allocating a large strm->next_in buffer and copying from it.
  * (See also flush_pending()).
@@ -555,9 +516,6 @@ local unsigned read_buf(strm, buf, size)
     strm->avail_in  -= len;
 
     zmemcpy(buf, strm->next_in, len);
-    if (strm->state->wrap == 1) {
-        strm->adler = adler32(strm->adler, buf, len);
-    }
     strm->next_in  += len;
     strm->total_in += len;
 

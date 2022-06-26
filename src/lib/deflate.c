@@ -940,12 +940,6 @@ local void fill_window(s)
    if (s->strm->avail_out == 0) return (last) ? finish_started : need_more; \
 }
 
-/* Maximum stored block length in deflate format (not including header). */
-#define MAX_STORED 65535
-
-/* Minimum of a and b. */
-#define MIN(a, b) ((a) > (b) ? (b) : (a))
-
 /* ===========================================================================
  * Same as above, but achieves better compression. We use a lazy
  * evaluation for matches: a match is finally adopted only if there is

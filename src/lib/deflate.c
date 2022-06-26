@@ -109,21 +109,6 @@ local  void check_match OF((deflate_state *s, IPos start, IPos match,
 #endif
 /* Matches of length 3 are discarded if their distance exceeds TOO_FAR */
 
-/* Values for max_lazy_match, good_match and max_chain_length, depending on
- * the desired pack evel (0..9). The values given below have been tuned to
- * exclude worst case performance for pathological files. Better values may be
- * found for specific files.
- */
-typedef struct config_s {
-   unsigned short good_length; /* reduce lazy search above this match length */
-   unsigned short max_lazy;    /* do not perform lazy search above this match length */
-   unsigned short nice_length; /* quit search above this match length */
-   unsigned short max_chain;
-   compress_func func;
-} config;
-
-local const config configuration = {32, 258, 258, 4096, deflate_slow};
-
 /* Note: the deflate() code requires max_lazy >= MIN_MATCH and max_chain >= 4
  * For deflate_fast() (levels <= 3) good is ignored and lazy has a different
  * meaning.
@@ -195,9 +180,8 @@ local void slide_hash(s)
 }
 
 /* ========================================================================= */
-int ZEXPORT deflate9Init2_(strm, memLevel, strategy)
+int ZEXPORT deflate9Init2_(strm, strategy)
     z_streamp strm;
-    int  memLevel;
     int  strategy;
 {
     deflate_state *s;
@@ -220,8 +204,7 @@ int ZEXPORT deflate9Init2_(strm, memLevel, strategy)
         strm->zfree = zcfree;
 #endif
 
-    if (memLevel < 1 || memLevel > MAX_MEM_LEVEL ||
-        strategy < 0 || strategy > Z_FIXED) {
+    if (strategy < 0 || strategy > Z_FIXED) {
         return Z_STREAM_ERROR;
     }
     s = (deflate_state *) ZALLOC(strm, 1, sizeof(deflate_state));
@@ -235,7 +218,7 @@ int ZEXPORT deflate9Init2_(strm, memLevel, strategy)
     s->w_size = 1 << s->w_bits;
     s->w_mask = s->w_size - 1;
 
-    s->hash_bits = (uInt)memLevel + 7;
+    s->hash_bits = MEM_LEVEL64 + 7;
     s->hash_size = 1 << s->hash_bits;
     s->hash_mask = s->hash_size - 1;
     s->hash_shift =  ((s->hash_bits+MIN_MATCH-1)/MIN_MATCH);
@@ -246,7 +229,7 @@ int ZEXPORT deflate9Init2_(strm, memLevel, strategy)
 
     s->high_water = 0;      /* nothing written to s->window yet */
 
-    s->lit_bufsize = 1 << (memLevel + 6); /* 16K elements by default */
+    s->lit_bufsize = 1 << (MEM_LEVEL64 + 6); /* 16K elements by default */
 
     /* We overlay pending_buf and sym_buf. This works since the average size
      * for length/distance pairs over any compressed block is assured to be 31
@@ -480,7 +463,7 @@ int ZEXPORT deflate9 (strm, flush)
         (flush != Z_NO_FLUSH && s->status != FINISH_STATE)) {
         block_state bstate;
 
-        bstate = (*(configuration.func))(s, flush);
+        bstate = deflate_slow(s, flush);
 
         if (bstate == finish_started || bstate == finish_done) {
             s->status = FINISH_STATE;
@@ -600,10 +583,10 @@ local void lm_init (s)
 
     /* Set the default configuration parameters:
      */
-    s->max_lazy_match   = configuration.max_lazy;
-    s->good_match       = configuration.good_length;
-    s->nice_match       = configuration.nice_length;
-    s->max_chain_length = configuration.max_chain;
+    s->max_lazy_match   = 258;
+    s->good_match       = 32;
+    s->nice_match       = 258;
+    s->max_chain_length = 4096;
 
     s->strstart = 0;
     s->block_start = 0L;

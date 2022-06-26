@@ -11,3 +11,6 @@ def test_deflater():
     deflater = inflate64.Deflater()
     compressed = deflater.deflate(data)
     compressed += deflater.flush()
+    with testdata_path.joinpath("data.bin").open("rb") as f:
+        expected = f.read()
+        assert compressed == expected

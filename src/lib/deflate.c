@@ -180,7 +180,7 @@ local void slide_hash(s)
 }
 
 /* ========================================================================= */
-int ZEXPORT deflate9Init2_(strm)
+int ZEXPORT deflate9Init2(strm)
     z_streamp strm;
 {
     deflate_state *s;

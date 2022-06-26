@@ -28,9 +28,7 @@ ZEXTERN int ZEXPORT deflate9ResetKeep OF((z_stream FAR *strm));
 
 ZEXTERN int ZEXPORT deflate9 OF((z_stream FAR *strm, int flush));
 ZEXTERN int ZEXPORT deflate9End OF((z_stream FAR *strm));
-ZEXTERN int ZEXPORT deflate9Init2_ OF((z_stream FAR *strm));
-
-#define deflate9Init2(strm) deflate9Init2_((strm))
+ZEXTERN int ZEXPORT deflate9Init2 OF((z_stream FAR *strm));
 
 ZEXTERN int ZEXPORT inflate9 OF((z_stream FAR *strm, int flush));
 ZEXTERN int ZEXPORT inflate9End OF((z_stream FAR *strm));

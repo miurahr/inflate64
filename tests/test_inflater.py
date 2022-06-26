@@ -1,20 +1,14 @@
 import os
 import pathlib
 import subprocess
+import zipfile
 
 import inflate64
 import pytest
 
 testdata_path = pathlib.Path(os.path.dirname(__file__)).joinpath("data")
-expect = "This file is located in the root.This file is located in a folder.".encode("utf-8")
-
-
-def test_inflater_a():
-    with testdata_path.joinpath("data.bin").open("rb") as f:
-        data = f.read()
-        inflater = inflate64.Inflater()
-        result = inflater.inflate(data)
-        assert result == expect
+testdata = testdata_path.joinpath("test-file.zip")
+srcdata = testdata_path.joinpath("src.zip")
 
 
 @pytest.mark.parametrize(
@@ -42,15 +36,12 @@ def test_inflater_a():
         ("test-file.20", 39588, 3355),
     ],
 )
-def test_inflater_b(tmp_path, fname, offset, length):
-    testdata = testdata_path.joinpath("test-file.zip")
+def test_inflater(tmp_path, fname, offset, length):
     with testdata.open("rb") as f:
         _ = f.seek(offset, os.SEEK_SET)
         data = f.read(length)
-    cmd = ["unzip", str(testdata), fname, "-d", str(tmp_path), "-qq"]
-    subprocess.run(cmd)
-    with tmp_path.joinpath(fname).open("rb") as r:
-        expected = r.read()
+    with zipfile.ZipFile(srcdata) as z:
+        expected = z.read(fname)
     inflater = inflate64.Inflater()
     result = inflater.inflate(data)
     assert len(result) == len(expected)

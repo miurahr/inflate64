@@ -497,7 +497,7 @@ local unsigned read_buf(strm, buf, size)
 local void lm_init (s)
     deflate_state *s;
 {
-    s->window_size = (unsigned long)2L*s->w_size;
+    s->window_size = (unsigned long) 2L * s->w_size;
 
     CLEAR_HASH(s);
 
@@ -512,7 +512,7 @@ local void lm_init (s)
     s->block_start = 0L;
     s->lookahead = 0;
     s->insert = 0;
-    s->match_length = s->prev_length = MIN_MATCH-1;
+    s->match_length = s->prev_length = MIN_MATCH - 1;
     s->match_available = 0;
     s->ins_h = 0;
 }
@@ -572,7 +572,9 @@ local uInt longest_match(s, cur_match)
     /* Do not look for matches beyond the end of the input. This is necessary
      * to make deflate deterministic.
      */
-    if ((uInt)nice_match > s->lookahead) nice_match = (int)s->lookahead;
+    if ((uInt) nice_match > s->lookahead) {
+        nice_match = (int) s->lookahead;
+    }
 
     Assert((unsigned long)s->strstart <= s->window_size-MIN_LOOKAHEAD, "need lookahead");
 
@@ -657,18 +659,22 @@ local uInt longest_match(s, cur_match)
         if (len > best_len) {
             s->match_start = cur_match;
             best_len = len;
-            if (len >= nice_match) break;
+            if (len >= nice_match) {
+                break;
+            }
 #ifdef UNALIGNED_OK
             scan_end = *(ushf*)(scan+best_len-1);
 #else
-            scan_end1  = scan[best_len-1];
-            scan_end   = scan[best_len];
+            scan_end1 = scan[best_len - 1];
+            scan_end = scan[best_len];
 #endif
         }
     } while ((cur_match = prev[cur_match & wmask]) > limit
              && --chain_length != 0);
 
-    if ((uInt)best_len <= s->lookahead) return (uInt)best_len;
+    if ((uInt) best_len <= s->lookahead) {
+        return (uInt) best_len;
+    }
     return s->lookahead;
 }
 
@@ -749,8 +755,9 @@ local void fill_window(s)
             s->match_start -= wsize;
             s->strstart    -= wsize; /* we now have strstart >= MAX_DIST */
             s->block_start -= (long) wsize;
-            if (s->insert > s->strstart)
+            if (s->insert > s->strstart) {
                 s->insert = s->strstart;
+            }
             slide_hash(s);
             more += wsize;
         }
@@ -781,7 +788,7 @@ local void fill_window(s)
             Call UPDATE_HASH() MIN_MATCH-3 more times
 #endif
             while (s->insert) {
-                UPDATE_HASH(s, s->ins_h, s->window[str + MIN_MATCH-1]);
+                UPDATE_HASH(s, s->ins_h, s->window[str + MIN_MATCH - 1]);
                 s->prev[str & s->w_mask] = s->head[s->ins_h];
                 s->head[s->ins_h] = (Pos)str;
                 str++;
@@ -812,8 +819,9 @@ local void fill_window(s)
              * bytes or up to end of window, whichever is less.
              */
             init = s->window_size - curr;
-            if (init > WIN_INIT)
+            if (init > WIN_INIT) {
                 init = WIN_INIT;
+            }
             zmemzero(s->window + curr, (unsigned)init);
             s->high_water = curr + init;
         }
@@ -823,8 +831,9 @@ local void fill_window(s)
              * to end of window, whichever is less.
              */
             init = (unsigned long)curr + WIN_INIT - s->high_water;
-            if (init > s->window_size - s->high_water)
+            if (init > s->window_size - s->high_water) {
                 init = s->window_size - s->high_water;
+            }
             zmemzero(s->window + s->high_water, (unsigned)init);
             s->high_water += init;
         }

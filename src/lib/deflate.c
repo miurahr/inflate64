@@ -83,17 +83,10 @@ local block_state deflate_slow   OF((deflate_state *s, int flush));
 local void lm_init        OF((deflate_state *s));
 local void flush_pending  OF((z_streamp strm));
 local unsigned read_buf   OF((z_streamp strm, Bytef *buf, unsigned size));
-#ifdef ASMV
-#  pragma message("Assembler code may have bugs -- use at your own risk")
-      void match_init OF((void)); /* asm code initialization */
-      uInt longest_match  OF((deflate_state *s, IPos cur_match));
-#else
 local uInt longest_match  OF((deflate_state *s, IPos cur_match));
-#endif
 
 #ifdef ZLIB_DEBUG
-local  void check_match OF((deflate_state *s, IPos start, IPos match,
-                            int length));
+local  void check_match OF((deflate_state *s, IPos start, IPos match, int length));
 #endif
 
 /* ===========================================================================
@@ -188,19 +181,11 @@ int ZEXPORT deflate9Init2(strm)
 
     strm->msg = Z_NULL;
     if (strm->zalloc == (alloc_func)0) {
-#ifdef Z_SOLO
         return Z_STREAM_ERROR;
-#else
-        strm->zalloc = zcalloc;
-        strm->opaque = (voidpf)0;
-#endif
     }
-    if (strm->zfree == (free_func)0)
-#ifdef Z_SOLO
+    if (strm->zfree == (free_func)0) {
         return Z_STREAM_ERROR;
-#else
-        strm->zfree = zcfree;
-#endif
+    }
 
     s = (deflate_state *) ZALLOC(strm, 1, sizeof(deflate_state));
     if (s == Z_NULL) return Z_MEM_ERROR;
@@ -530,9 +515,6 @@ local void lm_init (s)
     s->match_length = s->prev_length = MIN_MATCH-1;
     s->match_available = 0;
     s->ins_h = 0;
-#ifdef ASMV
-    match_init(); /* initialize the asm code */
-#endif
 }
 
 /* ===========================================================================
@@ -544,7 +526,6 @@ local void lm_init (s)
  *   string (strstart) and its distance is <= MAX_DIST, and prev_length >= 1
  * OUT assertion: the match length is not greater than s->lookahead.
  */
-#ifndef ASMV
 /* For 80x86 and 680x0, an optimized version will be provided in match.asm or
  * match.S. The code will be functionally equivalent.
  */
@@ -690,7 +671,6 @@ local uInt longest_match(s, cur_match)
     if ((uInt)best_len <= s->lookahead) return (uInt)best_len;
     return s->lookahead;
 }
-#endif /* ASMV */
 
 
 #ifdef ZLIB_DEBUG

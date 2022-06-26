@@ -448,22 +448,6 @@ int ZEXPORT deflate9 (strm, flush)
              */
         }
         if (bstate == block_done) {
-            if (flush == Z_PARTIAL_FLUSH) {
-                _tr_align(s);
-            } else if (flush != Z_BLOCK) { /* FULL_FLUSH or SYNC_FLUSH */
-                _tr_stored_block(s, (char*)0, 0L, 0);
-                /* For a full flush, this empty block will be recognized
-                 * as a special marker by inflate_sync().
-                 */
-                if (flush == Z_FULL_FLUSH) {
-                    CLEAR_HASH(s);             /* forget history */
-                    if (s->lookahead == 0) {
-                        s->strstart = 0;
-                        s->block_start = 0L;
-                        s->insert = 0;
-                    }
-                }
-            }
             flush_pending(strm);
             if (strm->avail_out == 0) {
               s->last_flush = -1; /* avoid BUF_ERROR at next call, see above */

@@ -19,16 +19,9 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         python-version: [
-            "3.6",
-            "3.7",
             "3.8",
-            "3.9",
             "3.10",
-            "3.11-dev",
         ]
-        include:
-          - os: macos-latest
-            python-version: "3.10"
     name: Test Python ${{ matrix.python-version }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
@@ -39,11 +32,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - name: Install system library(linux)
-        if: runner.os == 'linux'
-        run: |
-          sudo apt-get update -q -y
-          sudo apt-get install -q -y libarchive-dev graphviz
       - name: Install dependencies
         run: |
           pip install -U pip tox wheel setuptools
@@ -53,61 +41,4 @@ jobs:
           tox
         env:
           PYTEST_ADDOPTS: "--cov-config=pyproject.toml --cov --cov-append"
-      - name: Send coverage to coveralls
-        if: github.ref == 'refs/heads/master'
-        run: |
-          coveralls
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COVERALLS_PARALLEL: true
-          COVERALLS_FLAG_NAME: py-${{ matrix.python-version }}-${{ matrix.os }}
 
-  test_on_aarch64:
-    name: Test on ${{ matrix.arch }}
-    runs-on: ubuntu-20.04
-    strategy:
-      matrix:
-        arch: [aarch64]
-        distro: [ubuntu20.04]
-    steps:
-      - name: Checkout 🛎️
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 20
-      - uses: uraimo/run-on-arch-action@v2.2.0
-        name: Build & run test
-        with:
-          arch: ${{ matrix.arch }}
-          distro: ${{ matrix.distro }}
-          githubToken: ${{ github.token }}
-          install: |
-            apt-get update -q -y
-            apt-get install -q -y python3 python3-pip python3-cffi build-essential gcc git libffi-dev python3-dev
-            python3 -m pip install -U pip tox setuptools setuptools_scm[toml] coverage[toml]
-          run: |
-            git config --global --add safe.directory ${GITHUB_WORKSPACE}
-            python3 -c "import platform;print('Machine type:', platform.machine())"
-            python3 -m tox -e py38
-          env: |
-            PYTEST_ADDOPTS: "--cov-config=pyproject.toml --cov --cov-append"
-
-  finish:
-    runs-on: ubuntu-latest
-    name: finish parallel build
-    needs: build
-    if: github.ref == 'refs/heads/master'
-    steps:
-      - name: Setup python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.8
-          architecture: x64
-      - name: Tell Coveralls that the parallel build is finished
-        run: |
-          curl -k \
-              https://coveralls.io/webhook?repo_token=$COVERALLS_REPO_TOKEN \
-              -d "payload[build_num]=$GITHUB_SHA&payload[status]=done"
-        env:
-          COVERALLS_REPO_TOKEN: ${{ secrets.COVERALLS_REPO_TOKEN }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

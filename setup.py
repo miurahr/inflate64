@@ -6,6 +6,7 @@ from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 from setuptools.command.egg_info import egg_info
 
+
 sources = [
     "src/lib/deflate.c",
     "src/lib/inflate.c",
@@ -13,8 +14,13 @@ sources = [
     "src/lib/deftree.c",
     "src/lib/zutil.c"
 ]
-_deflate64_extension = Extension("inflate64._inflate64", sources)
+packages = ["inflate64"]
 kwargs = {"include_dirs": ["src/lib", "src/ext"], "library_dirs": [], "libraries": [], "sources": sources, "define_macros": []}
+# binary extension
+kwargs["name"] = "inflate64._inflate64"
+kwargs["sources"].append("src/ext/_inflate64module.c")
+binary_extension = Extension(**kwargs)
+_deflate64_extension = Extension("inflate64._inflate64", sources)
 
 
 def has_option(option):
@@ -25,13 +31,8 @@ def has_option(option):
         return False
 
 
-# packages
-packages = ["inflate64"]
-# binary extension
-kwargs["name"] = "inflate64._inflate64"
-kwargs["sources"].append("src/ext/_inflate64module.c")
-binary_extension = Extension(**kwargs)
 WARNING_AS_ERROR = has_option("--warning-as-error")
+DEBUG_BUILD = has_option("--debug")
 
 
 class build_ext_compiler_check(build_ext):
@@ -40,6 +41,8 @@ class build_ext_compiler_check(build_ext):
             if self.compiler.compiler_type.lower() in ("unix", "mingw32"):
                 if WARNING_AS_ERROR:
                     extension.extra_compile_args.append("-Werror")
+                if DEBUG_BUILD:
+                    extension.extra_compile_args.append("-DZLIB_DEBUG")
             elif self.compiler.compiler_type.lower() == "msvc":
                 # /GF eliminates duplicate strings
                 # /Gy does function level linking

@@ -10,41 +10,81 @@ set(Python_FIND_IMPLEMENTATIONS CPython)
 #set(Python_FIND_IMPLEMENTATIONS PyPy)
 set(VENV_PATH "${CMAKE_BINARY_DIR}/venv")
 set(DEBUG_BUILD ON)
-
+if (DEBUG_BUILD)
+else()
+  set(COMPILE_WARNING_AS_ERROR ON)
+endif()
+# ##################################################################################################
+#
+set(_sources
+  src/ext/_inflate64module.c
+  src/lib/deflate.c
+  src/lib/inflate.c
+  src/lib/inftree.c
+  src/lib/deftree.c
+  src/lib/zutil.c
+)
 # ##################################################################################################
 # Configuration for python-ext
 set(Python_FIND_STRATEGY VERSION)
 find_package(Python ${PY_VERSION}.0...${PY_VERSION}.99 COMPONENTS Interpreter Development)
+
+set(PY_PACKAGE inflate64)
 set(PY_EXT_FILE _inflate64)
-set(PY_CFFI_FILE _inflate64)
-set(PY_EXT_DIR src/inflate64/c)
-file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/get_ext.py
-     "import sysconfig\nprint(sysconfig.get_config_var('EXT_SUFFIX'))\n")
+
 execute_process(
-  COMMAND ${Python_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/get_ext.py
-  OUTPUT_VARIABLE PY_EXT_EXT
-  OUTPUT_STRIP_TRAILING_WHITESPACE)
-set(PY_EXT ${PY_EXT_DIR}/${PY_EXT_FILE}.${PY_EXT_EXT})
+    COMMAND ${Python_EXECUTABLE} -c "import sysconfig\nprint(sysconfig.get_config_var('EXT_SUFFIX'))\n"
+    OUTPUT_VARIABLE PY_EXT_EXT
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(
+    COMMAND ${Python_EXECUTABLE} -c "import sysconfig\nprint(sysconfig.get_platform())\n"
+    OUTPUT_VARIABLE PY_PLATFORM
+    OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(
+        COMMAND ${Python_EXECUTABLE} -c "import sysconfig\nprint(sysconfig.get_python_version())\n"
+        OUTPUT_VARIABLE PY_VERSION
+        OUTPUT_STRIP_TRAILING_WHITESPACE)
+message(STATUS "Python SOABI is ${Python_SOABI}")
+set(PY_SRC_DIR src/${PY_PACKAGE})
+set(EXT_DIR ${CMAKE_BINARY_DIR})
+set(PY_EXT_DIR build/lib.${PY_PLATFORM}-${PY_VERSION}/${PY_PACKAGE})
+set(PY_EXT ${PY_EXT_DIR}/${PY_EXT_FILE}${PY_EXT_EXT})
+set(EXT ${EXT_DIR}/${PY_EXT_FILE}.${PY_EXT_EXT})
+
+# ##################################################################################################
+# bulid ext by setup.py
 if(DEBUG_BUILD)
   if (WIN32)
     set(BUILD_EXT_PYTHON ${VENV_PATH}/Scripts/python_d.exe)
-    set(BUILD_EXT_OPTION -g)
+    set(BUILD_EXT_OPTION -g --debug)
   else()
     set(BUILD_EXT_PYTHON ${Python_EXECUTABLE})
-    set(BUILD_EXT_OPTION -g)
+    set(BUILD_EXT_OPTION -g --debug)
   endif()
 else()
   set(BUILD_EXT_PYTHON ${Python_EXECUTABLE})
-  set(BUILD_EXT_OPTION)
+  set(BUILD_EXT_OPTION --warning-as-error)
 endif()
 add_custom_target(
-  generate_ext
+  build_ext_by_setup
   BYPRODUCTS ${PY_EXT}
-  COMMAND ${BUILD_EXT_PYTHON} setup.py build_ext ${BUILD_EXT_OPTION} --inplace
+  COMMAND ${BUILD_EXT_PYTHON} setup.py build_ext ${BUILD_EXT_OPTION}
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   DEPENDS venv.stamp
-  SOURCES ${pyppmd_sources})
+  SOURCES ${_sources})
 
+# ##################################################################################################
+# build ext by cmake
+include_directories(src/lib)
+Python_add_library(_inflate64 MODULE WITH_SOABI ${_sources})
+if(DEBUG_BUILD)
+  target_compile_definitions(_inflate64 PRIVATE ZLIB_DEBUG)
+endif()
+add_custom_target(build_ext
+                  BYPRODUCTS ${PY_EXT_INLINE}
+                  COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:_inflate64>" "${PY_SRC_DIR}"
+                  DEPENDS _inflate64
+                  )
 # ##################################################################################################
 # create virtualenv
 file(
@@ -156,18 +196,9 @@ else()
 endif()
 target_include_directories(pytest_runner PRIVATE ${Python_INCLUDE_DIRS})
 target_link_libraries(pytest_runner PRIVATE ${Python_LIBRARIES})
-add_dependencies(pytest_runner venv.stamp generate_ext)
+set(PY_EXT_INLINE ${CMAKE_SOURCE_DIR}/src/${PY_PACKAGE}/${PY_EXT_FILE}${PY_EXT_EXT})
+add_dependencies(pytest_runner venv.stamp build_ext)
 
-# ##################################################################################################
-# for build test and analytics
-include_directories(src/lib)
-Python_add_library(_inflate64 MODULE WITH_SOABI src/ext/_inflate64module.c
-                   src/lib/deflate.c
-                   src/lib/inflate.c
-                   src/lib/inftree.c
-                   src/lib/deftree.c
-                   src/lib/zutil.c
-                   )
 # ##################################################################################################
 # make table utility
 add_executable(makefixed9

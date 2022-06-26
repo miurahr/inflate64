@@ -54,15 +54,6 @@
 #include "zutil9.h"
 #include "deflate9.h"
 
-const char deflate_copyright[] =
-   " deflate 1.2.12 Copyright 1995-2022 Jean-loup Gailly and Mark Adler ";
-/*
-  If you use the zlib library in a product, an acknowledgment is welcome
-  in the documentation of your product. If for some reason you cannot
-  include such an acknowledgment, I would appreciate that you keep this
-  copyright string in the executable of your product.
- */
-
 /* ===========================================================================
  *  Function prototypes.
  */
@@ -72,9 +63,6 @@ typedef enum {
     finish_started, /* finish started, need only more output at next deflate */
     finish_done     /* finish done, accept no more input or output */
 } block_state;
-
-typedef block_state (*compress_func) OF((deflate_state *s, int flush));
-/* Compression function. Returns the block state after the call. */
 
 local int deflateStateCheck      OF((z_streamp strm));
 local void slide_hash     OF((deflate_state *s));
@@ -261,11 +249,6 @@ int ZEXPORT deflate9Init2(strm)
     }
     s->sym_buf = s->pending_buf + s->lit_bufsize;
     s->sym_end = (s->lit_bufsize - 1) * 3;
-    /* We avoid equality with lit_bufsize*3 because of wraparound at 64K
-     * on 16 bit machines and because stored blocks are restricted to
-     * 64K-1 bytes.
-     */
-
     return deflate9Reset(strm);
 }
 
@@ -305,8 +288,7 @@ int ZEXPORT deflate9ResetKeep (strm)
     s->pending = 0;
     s->pending_out = s->pending_buf;
 
-    s->status =
-        INIT_STATE;
+    s->status = INIT_STATE;
     s->last_flush = -2;
 
     _tr_init(s);
@@ -318,11 +300,10 @@ int ZEXPORT deflate9ResetKeep (strm)
 int ZEXPORT deflate9Reset (strm)
     z_streamp strm;
 {
-    int ret;
-
-    ret = deflate9ResetKeep(strm);
-    if (ret == Z_OK)
+    int ret = deflate9ResetKeep(strm);
+    if (ret == Z_OK) {
         lm_init(strm->state);
+    }
     return ret;
 }
 
@@ -340,8 +321,12 @@ local void flush_pending(strm)
 
     _tr_flush_bits(s);
     len = s->pending;
-    if (len > strm->avail_out) len = strm->avail_out;
-    if (len == 0) return;
+    if (len > strm->avail_out) {
+        len = strm->avail_out;
+    }
+    if (len == 0) {
+        return;
+    }
 
     zmemcpy(strm->next_out, s->pending_out, len);
     strm->next_out  += len;
@@ -372,7 +357,7 @@ int ZEXPORT deflate9 (strm, flush)
         (s->status == FINISH_STATE && flush != Z_FINISH)) {
         ERR_RETURN(strm, Z_STREAM_ERROR);
     }
-    if (strm->avail_out == 0) ERR_RETURN(strm, Z_BUF_ERROR);
+    if (strm->avail_out == 0) { ERR_RETURN(strm, Z_BUF_ERROR); }
 
     old_flush = s->last_flush;
     s->last_flush = flush;
@@ -405,8 +390,7 @@ int ZEXPORT deflate9 (strm, flush)
     }
 
     /* raw deflate only */
-    if (s->status == INIT_STATE)
-        s->status = BUSY_STATE;
+    if (s->status == INIT_STATE) { s->status = BUSY_STATE; }
 
     /* Start a new block or continue the current one.
      */

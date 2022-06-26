@@ -180,9 +180,8 @@ local void slide_hash(s)
 }
 
 /* ========================================================================= */
-int ZEXPORT deflate9Init2_(strm, strategy)
+int ZEXPORT deflate9Init2_(strm)
     z_streamp strm;
-    int  strategy;
 {
     deflate_state *s;
 
@@ -204,9 +203,6 @@ int ZEXPORT deflate9Init2_(strm, strategy)
         strm->zfree = zcfree;
 #endif
 
-    if (strategy < 0 || strategy > Z_FIXED) {
-        return Z_STREAM_ERROR;
-    }
     s = (deflate_state *) ZALLOC(strm, 1, sizeof(deflate_state));
     if (s == Z_NULL) return Z_MEM_ERROR;
     strm->state = (struct internal_state FAR *)s;
@@ -286,8 +282,6 @@ int ZEXPORT deflate9Init2_(strm, strategy)
      * on 16 bit machines and because stored blocks are restricted to
      * 64K-1 bytes.
      */
-
-    s->strategy = strategy;
 
     return deflate9Reset(strm);
 }
@@ -443,8 +437,7 @@ int ZEXPORT deflate9 (strm, flush)
      * flushes. For repeated and useless calls with Z_FINISH, we keep
      * returning Z_STREAM_END instead of Z_BUF_ERROR.
      */
-    } else if (strm->avail_in == 0 && RANK(flush) <= RANK(old_flush) &&
-               flush != Z_FINISH) {
+    } else if (strm->avail_in == 0 && RANK(flush) <= RANK(old_flush) && flush != Z_FINISH) {
         ERR_RETURN(strm, Z_BUF_ERROR);
     }
 
@@ -934,12 +927,6 @@ local void fill_window(s)
    Tracev((stderr,"[FLUSH]")); \
 }
 
-/* Same but force premature exit if necessary. */
-#define FLUSH_BLOCK(s, last) { \
-   FLUSH_BLOCK_ONLY(s, last); \
-   if (s->strm->avail_out == 0) return (last) ? finish_started : need_more; \
-}
-
 /* ===========================================================================
  * Same as above, but achieves better compression. We use a lazy
  * evaluation for matches: a match is finally adopted only if there is
@@ -988,15 +975,6 @@ local block_state deflate_slow(s, flush)
              */
             s->match_length = longest_match (s, hash_head);
             /* longest_match() sets match_start */
-
-            if (s->match_length <= 5 && (s->strategy == Z_FILTERED
-                )) {
-
-                /* If prev_match is also MIN_MATCH, match_start is garbage
-                 * but we will ignore the current match anyway.
-                 */
-                s->match_length = MIN_MATCH-1;
-            }
         }
         /* If there was a match at the previous step and the current
          * match is not better, output the previous match:
@@ -1026,7 +1004,12 @@ local block_state deflate_slow(s, flush)
             s->match_length = MIN_MATCH-1;
             s->strstart++;
 
-            if (bflush) FLUSH_BLOCK(s, 0);
+            if (bflush) {
+                FLUSH_BLOCK_ONLY(s, 0);
+                if (s->strm->avail_out == 0) {
+                    return need_more;
+                }
+            }
 
         } else if (s->match_available) {
             /* If there was no match at the previous position, output a
@@ -1050,7 +1033,7 @@ local block_state deflate_slow(s, flush)
             s->lookahead--;
         }
     }
-    Assert (flush != Z_NO_FLUSH, "no flush?");
+    // Assert (flush != Z_NO_FLUSH, "no flush?");
     if (s->match_available) {
         Tracevv((stderr,"%c", s->window[s->strstart-1]));
         _tr_tally_lit(s, s->window[s->strstart-1], bflush);
@@ -1058,10 +1041,18 @@ local block_state deflate_slow(s, flush)
     }
     s->insert = s->strstart < MIN_MATCH-1 ? s->strstart : MIN_MATCH-1;
     if (flush == Z_FINISH) {
-        FLUSH_BLOCK(s, 1);
-        return finish_done;
+        FLUSH_BLOCK_ONLY(s, 1);
+        if (s->strm->avail_out == 0) {
+            return finish_started;
+        } else {
+            return finish_done;
+        }
     }
-    if (s->sym_next)
-        FLUSH_BLOCK(s, 0);
+    if (s->sym_next) {
+        FLUSH_BLOCK_ONLY(s, 0);
+        if (s->strm->avail_out == 0) {
+            return need_more;
+        }
+    }
     return block_done;
 }

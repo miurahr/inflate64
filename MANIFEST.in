@@ -1,6 +1,7 @@
 include *.rst
 include .flake8
 include CMakeLists.txt
+include COPYING
 include src/lib/README
 recursive-include src *.py
 recursive-include src py.typed

@@ -436,6 +436,87 @@ error:
     return RetVal;
 }
 
+PyDoc_STRVAR(Deflater_flush_doc, "flush()\n"
+                                   "----\n"
+                                   "Flush compressed data.");
+
+static PyObject *
+Deflater_flush(compobject *self, PyObject *args, PyObject *kwargs) {
+    static char *kwlist[] = {"mode", NULL};
+    int err;
+    int mode = Z_FINISH;
+    PyObject *RetVal = NULL;
+    _BlocksOutputBuffer buffer = {.list = NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs,
+                                     "|i:Deflater.flush",
+                                     kwlist, &mode)) {
+        PyErr_Format(PyExc_ValueError, "Argument error");
+        return NULL;
+    }
+
+    /*
+     * flushing with Z_NO_FLUSH is a non-op, so there's no point in
+     * doing any work at all; just return with empty data.
+     */
+    if (mode == Z_NO_FLUSH) {
+        return PyBytes_FromStringAndSize(NULL, 0);
+    }
+
+    ACQUIRE_LOCK(self);
+
+    self->zst.next_in = NULL;
+    self->zst.avail_in = 0;
+
+    if (OutputBuffer_InitAndGrow(&buffer, -1, &self->zst.next_out, &self->zst.avail_out) < 0) {
+        PyErr_NoMemory();
+        goto error;
+    }
+
+    do {
+        if (self->zst.avail_out == 0) {
+            if (OutputBuffer_Grow(&buffer, &self->zst.next_out, &self->zst.avail_out)) {
+                PyErr_NoMemory();
+                goto error;
+            }
+        }
+        Py_BEGIN_ALLOW_THREADS
+            err = deflate9(&self->zst, mode);
+        Py_END_ALLOW_THREADS
+
+        if (err == Z_STREAM_ERROR) {
+            PyErr_Format(PyExc_RuntimeError, "deflater9 return an unexpected return code %d\n", err);
+            goto error;
+        }
+    } while (self->zst.avail_out == 0);
+
+    if (err == Z_STREAM_END && mode == Z_FINISH) {
+        err = deflate9End(&self->zst);
+        if (err != Z_OK) {
+            PyErr_Format(PyExc_RuntimeError, "deflater9End return an unexpected return code %d\n", err);
+            goto error;
+        } else {
+            self->is_initialised = 0;
+        }
+    } else if (err != Z_OK && err != Z_BUF_ERROR){
+        PyErr_Format(PyExc_RuntimeError, "Deflater.flush got unexpected return code %d\n", err);
+        goto error;
+    }
+
+    RetVal = OutputBuffer_Finish(&buffer, self->zst.avail_out);
+    if (RetVal != NULL) {
+        goto success;
+    }
+
+error:
+    OutputBuffer_OnError(&buffer);
+    RetVal = NULL;
+
+success:
+    RELEASE_LOCK(self);
+    return RetVal;
+}
+
 static PyObject *
 Inflater_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
@@ -596,6 +677,8 @@ save:
 static PyMethodDef Deflater_methods[] = {
         {"deflate", (PyCFunction)Deflater_deflate,
                 METH_VARARGS|METH_KEYWORDS, Deflater_deflate_doc},
+        {"flush", (PyCFunction)Deflater_flush,
+                METH_VARARGS|METH_KEYWORDS, Deflater_flush_doc},
         {NULL, NULL, 0, NULL}
 };
 

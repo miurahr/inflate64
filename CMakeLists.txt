@@ -10,6 +10,7 @@ set(Python_FIND_IMPLEMENTATIONS CPython)
 #set(Python_FIND_IMPLEMENTATIONS PyPy)
 set(VENV_PATH "${CMAKE_BINARY_DIR}/venv")
 set(DEBUG_BUILD ON)
+
 if (DEBUG_BUILD)
 else()
   set(COMPILE_WARNING_AS_ERROR ON)
@@ -78,7 +79,7 @@ add_custom_target(
 include_directories(src/lib)
 Python_add_library(_inflate64 MODULE WITH_SOABI ${_sources})
 if(DEBUG_BUILD)
-  target_compile_definitions(_inflate64 PRIVATE ZLIB_DEBUG)
+  target_compile_definitions(_inflate64 PRIVATE -DZLIB_DEBUG)
 endif()
 add_custom_target(build_ext
                   BYPRODUCTS ${PY_EXT_INLINE}

@@ -3,6 +3,7 @@ include .flake8
 include CMakeLists.txt
 include COPYING
 recursive-include docs *.rst
+recursive-include docs *.txt
 recursive-include src *.py
 recursive-include src py.typed
 recursive-include src *.c

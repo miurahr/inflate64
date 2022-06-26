@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os
-import platform
 import sys
 
 from setuptools import Extension, setup
@@ -26,29 +25,12 @@ def has_option(option):
         return False
 
 
-if has_option("--cffi"): # or platform.python_implementation() == "PyPy":
-    # packages
-    packages = ["inflate64", "inflate64.cffi"]
-
-    # binary extension
-    kwargs["module_name"] = "inflate64.cffi._cffi_inflate64"
-
-    sys.path.append("src/ext")
-    import ffi_build
-
-    ffi_build.set_kwargs(**kwargs)
-    binary_extension = ffi_build.ffibuilder.distutils_extension()
-else:  # C implementation
-    # packages
-    packages = ["inflate64", "inflate64.c"]
-
-    # binary extension
-    kwargs["name"] = "inflate64.c._inflate64"
-    kwargs["sources"].append("src/ext/_inflate64module.c")
-
-    binary_extension = Extension(**kwargs)
-
-
+# packages
+packages = ["inflate64"]
+# binary extension
+kwargs["name"] = "inflate64._inflate64"
+kwargs["sources"].append("src/ext/_inflate64module.c")
+binary_extension = Extension(**kwargs)
 WARNING_AS_ERROR = has_option("--warning-as-error")
 
 

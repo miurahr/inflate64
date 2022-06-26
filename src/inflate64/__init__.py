@@ -1,9 +1,8 @@
 from importlib.metadata import PackageNotFoundError, version
 
-from .c.c_inflate64 import (  # noqa
+from ._inflate64 import (  # noqa
     Deflater,
     Inflater,
-    Inflate64Error,
 )
 
 __all__ = ()
@@ -18,4 +17,4 @@ try:
     __version__ = version(__name__)
 except PackageNotFoundError:  # pragma: no-cover
     # package is not installed
-    __version__ = "unknown"
+    __version__ = "0.1.0"

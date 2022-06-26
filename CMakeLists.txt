@@ -18,7 +18,6 @@ find_package(Python ${PY_VERSION}.0...${PY_VERSION}.99 COMPONENTS Interpreter De
 set(PY_EXT_FILE _inflate64)
 set(PY_CFFI_FILE _inflate64)
 set(PY_EXT_DIR src/inflate64/c)
-set(PY_CFFI_DIR src/inflate64/cffi)
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/get_ext.py
      "import sysconfig\nprint(sysconfig.get_config_var('EXT_SUFFIX'))\n")
 execute_process(
@@ -26,7 +25,6 @@ execute_process(
   OUTPUT_VARIABLE PY_EXT_EXT
   OUTPUT_STRIP_TRAILING_WHITESPACE)
 set(PY_EXT ${PY_EXT_DIR}/${PY_EXT_FILE}.${PY_EXT_EXT})
-set(PY_CFFI ${PY_CFFI_DIR}/PY_CFFI_FILE}.${PY_EXT_EXT})
 if(DEBUG_BUILD)
   if (WIN32)
     set(BUILD_EXT_PYTHON ${VENV_PATH}/Scripts/python_d.exe)
@@ -43,13 +41,6 @@ add_custom_target(
   generate_ext
   BYPRODUCTS ${PY_EXT}
   COMMAND ${BUILD_EXT_PYTHON} setup.py build_ext ${BUILD_EXT_OPTION} --inplace
-  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-  DEPENDS venv.stamp
-  SOURCES ${pyppmd_sources})
-add_custom_target(
-  generate_cffi
-  BYPRODUCTS ${PY_CFFI}
-  COMMAND ${BUILD_EXT_PYTHON} setup.py build_ext ${BUILD_EXT_OPTION} --cffi --inplace
   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
   DEPENDS venv.stamp
   SOURCES ${pyppmd_sources})
@@ -142,11 +133,13 @@ int main(int argc, char **argv) {
     }
     std::filesystem::path vsite_path_a = \"${VPKG_PATH_A}\";
     std::filesystem::path vsite_path_b = \"${VPKG_PATH_B}\";
+    std::filesystem::path vsite_path_c = \"${VPKG_PATH_C}\";
     std::string pycode =
         \"import sys\\n\"
-        \"sys.path.append('src')\\n\"
         \"sys.path.append('\" + vsite_path_a.string() + \"')\\n\"
         \"sys.path.append('\" + vsite_path_b.string() + \"')\\n\"
+        \"sys.path.append('\" + vsite_path_c.string() + \"')\\n\"
+        \"sys.path.append('src')\\n\"
         \"import pytest\\n\"
         \"pytest.main(\" + args + \")\\n\";
     rpython_startup_code();
@@ -163,22 +156,18 @@ else()
 endif()
 target_include_directories(pytest_runner PRIVATE ${Python_INCLUDE_DIRS})
 target_link_libraries(pytest_runner PRIVATE ${Python_LIBRARIES})
-add_dependencies(pytest_runner venv.stamp)
+add_dependencies(pytest_runner venv.stamp generate_ext)
 
 # ##################################################################################################
 # for build test and analytics
 include_directories(src/lib)
-add_library(inflate_ STATIC
-        src/lib/deflate.c
-        src/lib/inflate.c
-        src/lib/inftree.c
-        src/lib/deftree.c
-        src/lib/zutil.c
-        )
-set_target_properties(inflate_ PROPERTIES POSITION_INDEPENDENT_CODE ON VISIBILITY_INLINES_HIDDEN ON)
-target_compile_definitions(inflate_ PRIVATE -DZLIB_DEBUG)
-Python_add_library(_inflate64 MODULE WITH_SOABI src/ext/_inflate64module.c)
-target_link_libraries(_inflate64 PUBLIC inflate_)
+Python_add_library(_inflate64 MODULE WITH_SOABI src/ext/_inflate64module.c
+                   src/lib/deflate.c
+                   src/lib/inflate.c
+                   src/lib/inftree.c
+                   src/lib/deftree.c
+                   src/lib/zutil.c
+                   )
 # ##################################################################################################
 # make table utility
 add_executable(makefixed9

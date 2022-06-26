@@ -47,7 +47,7 @@ def test_inflater_b(tmp_path, fname, offset, length):
     with testdata.open("rb") as f:
         _ = f.seek(offset, os.SEEK_SET)
         data = f.read(length)
-    cmd = ["unzip", str(testdata), fname, "-d", str(tmp_path)]
+    cmd = ["unzip", str(testdata), fname, "-d", str(tmp_path), "-q"]
     subprocess.run(cmd)
     with tmp_path.joinpath(fname).open("rb") as r:
         expected = r.read()

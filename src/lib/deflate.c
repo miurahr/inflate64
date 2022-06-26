@@ -347,7 +347,8 @@ int ZEXPORT deflate9 (strm, flush)
     int old_flush; /* value of flush param for previous deflate call */
     deflate_state *s;
 
-    if (deflateStateCheck(strm) || flush > Z_BLOCK || flush < 0) {
+    /* Only accept Z_FINISH or Z_NO_FLUSH */
+    if (deflateStateCheck(strm) || (flush != Z_FINISH && flush != Z_NO_FLUSH)) {
         return Z_STREAM_ERROR;
     }
     s = strm->state;

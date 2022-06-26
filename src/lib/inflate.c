@@ -88,7 +88,7 @@ z_streamp strm;
     return inflate9Reset(strm);
 }
 
-int ZEXPORT inflate9Init2_(strm)
+int ZEXPORT inflate9Init2(strm)
 z_streamp strm;
 {
     int ret;

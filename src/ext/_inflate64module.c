@@ -316,20 +316,22 @@ Deflater_dealloc(compobject *self)
     if (self->lock) {
         PyThread_free_lock(self->lock);
     }
-    int err = deflate9End(&self->zst);
-    switch (err) {
-        case Z_OK:
-            break;
-        case Z_DATA_ERROR:
-            PyErr_SetString(PyExc_IOError,
-                            "The stream was freed prematurely (some input or output was discarded).");
-            break;
-        case Z_STREAM_ERROR:
-            PyErr_SetString(PyExc_IOError, "The stream state was inconsistent.");
-            break;
-        default:
-            PyErr_BadInternalCall();
-            break;
+    if (self->is_initialised) {
+        int err = deflate9End(&self->zst);
+        switch (err) {
+            case Z_OK:
+                break;
+            case Z_DATA_ERROR:
+                PyErr_SetString(PyExc_IOError,
+                                "The stream was freed prematurely (some input or output was discarded).");
+                break;
+            case Z_STREAM_ERROR:
+                PyErr_SetString(PyExc_IOError, "The stream state was inconsistent.");
+                break;
+            default:
+                PyErr_BadInternalCall();
+                break;
+        }
     }
     PyTypeObject *tp = Py_TYPE(self);
     tp->tp_free((PyObject*)self);
@@ -475,7 +477,7 @@ Deflater_flush(compobject *self, PyObject *args, PyObject *kwargs) {
 
     do {
         if (self->zst.avail_out == 0) {
-            if (OutputBuffer_Grow(&buffer, &self->zst.next_out, &self->zst.avail_out)) {
+            if (OutputBuffer_Grow(&buffer, &self->zst.next_out, &self->zst.avail_out) < 0) {
                 PyErr_NoMemory();
                 goto error;
             }

@@ -196,7 +196,7 @@ int ZEXPORT deflate9Init2(strm)
 
     s->high_water = 0;      /* nothing written to s->window yet */
 
-    s->lit_bufsize = 1 << (MEM_LEVEL64 + 6); /* 16K elements by default */
+    s->lit_bufsize = 1 << (s->hash_bits - 1); /* 16K elements by default */
 
     /* We overlay pending_buf and sym_buf. This works since the average size
      * for length/distance pairs over any compressed block is assured to be 31

@@ -3,9 +3,9 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-#include "zutil9.h"
-#include "inftree.h"
-#include "inflate9.h"
+#include "util.h"
+#include "inflate_tree.h"
+#include "inflate.h"
 #include "inflate64.h"
 
 #ifdef MAKEFIXED
@@ -161,7 +161,8 @@ struct inflate_state FAR *state;
         virgin = 0;
     }
 #else /* !BUILDFIXED */
-#   include "inffix9.h"
+#   include "inflate_fixed9.h"
+
 #endif /* BUILDFIXED */
     state->lencode = lenfix;
     state->lenbits = 9;

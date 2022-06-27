@@ -51,8 +51,8 @@
 /* @(#) $Id$ */
 
 #include "inflate64.h"
-#include "zutil9.h"
-#include "deflate9.h"
+#include "util.h"
+#include "deflate.h"
 
 /* ===========================================================================
  *  Function prototypes.

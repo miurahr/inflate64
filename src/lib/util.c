@@ -5,7 +5,7 @@
 
 /* @(#) $Id$ */
 
-#include "zutil9.h"
+#include "util.h"
 
 z_const char * const z_errmsg[10] = {
     (z_const char *)"need dictionary",     /* Z_NEED_DICT       2  */

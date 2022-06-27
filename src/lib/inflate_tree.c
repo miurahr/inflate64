@@ -3,8 +3,8 @@
  * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
-#include "zutil9.h"
-#include "inftree.h"
+#include "util.h"
+#include "inflate_tree.h"
 
 #define MAXBITS 16
 

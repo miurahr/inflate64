@@ -21,9 +21,9 @@ set(_sources
   src/ext/_inflate64module.c
   src/lib/deflate.c
   src/lib/inflate.c
-  src/lib/inftree.c
-  src/lib/deftree.c
-  src/lib/zutil.c
+    src/lib/inflate_tree.c
+    src/lib/deflate_tree.c
+    src/lib/util.c
 )
 # ##################################################################################################
 # Configuration for python-ext
@@ -205,7 +205,7 @@ add_dependencies(pytest_runner venv.stamp build_ext)
 add_executable(makefixed9
         src/utils/makefixed.c
         src/lib/inflate.c
-        src/lib/inftree.c
-        src/lib/zutil.c
+               src/lib/inflate_tree.c
+               src/lib/util.c
         )
 # ##################################################################################################

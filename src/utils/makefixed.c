@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include "inflate64.h"
 
-#include "inftree.h"
-#include "inflate9.h"
+#include "inflate_tree.h"
+#include "inflate.h"
 
 /*
    Write out the inftree.h.

@@ -5,7 +5,7 @@
 
 #ifndef DEFLATE9_H
 #define DEFLATE9_H
-#include "zutil9.h"
+#include "util.h"
 
 #ifndef local
 #  define local static

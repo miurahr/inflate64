@@ -9,8 +9,8 @@
 #include "inflate.h"
 
 /*
-   Write out the inftree.h.
-   makefixed() writes those tables to stdout, which would be piped to inftree.h.
+   Write out the inflate_tree.h.
+   makefixed() writes those tables to stdout, which would be piped to inflate_tree.h.
  */
 void makefixed9() {
     unsigned sym, bits, low, size;

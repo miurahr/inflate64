@@ -32,7 +32,7 @@
 
 /* @(#) $Id$ */
 
-#define GEN_TREES_H
+// #define GEN_TREES_H
 
 #include "deflate9.h"
 

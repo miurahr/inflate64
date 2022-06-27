@@ -25,18 +25,17 @@
 
 #define LENGTH_CODES 30
 /* number of length codes, not counting the special END_BLOCK code */
-/* extended for deflate64 */
+/* extended for deflate64 from 29 */
 
-#define LITERALS  255
+#define LITERALS  256
 /* number of literal bytes 0..255 */
-/* deflate64 should be <=255 */
 
 #define L_CODES (LITERALS+1+LENGTH_CODES)
 /* number of Literal or Length codes, including the END_BLOCK code */
 
-#define D_CODES   32
+#define D_CODES   31
 /* number of distance codes */
-/* extended for deflate64 */
+/* extended for deflate64 from 30 */
 
 #define BL_CODES  19
 /* number of codes used to transfer the bit lengths */
@@ -46,7 +45,7 @@
 
 #define MAX_BITS 16
 /* All codes must not exceed MAX_BITS bits */
-/* extended for deflate64 */
+/* extended for deflate64 from 15 */
 
 #define Buf_size 16
 /* size of bit buffer in bi_buf */

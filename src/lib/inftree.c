@@ -8,16 +8,6 @@
 
 #define MAXBITS 16
 
-const char inflate9_copyright[] =
-   " inflate 1.2.12 Copyright 1995-2022 Mark Adler ";
-
-/*
-  If you use the zlib library in a product, an acknowledgment is welcome
-  in the documentation of your product. If for some reason you cannot
-  include such an acknowledgment, I would appreciate that you keep this
-  copyright string in the executable of your product.
- */
-
 /*
    Build a set of tables to decode the provided canonical Huffman code.
    The code lengths are lens[0..codes-1].  The result starts at *table,

@@ -32,7 +32,7 @@
 
 /* @(#) $Id$ */
 
-// #define GEN_TREES_H
+#define GEN_TREES_H
 
 #include "deflate9.h"
 
@@ -59,11 +59,13 @@
 #define REPZ_11_138  18
 /* repeat a zero length 11-138 times  (7 bits of repeat count) */
 
-local const int extra_lbits[LENGTH_CODES] /* extra bits for each length code */ /* extended to deflate64 */
-        = {0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6, 0};
+local const int extra_lbits[LENGTH_CODES] /* extra bits for each length code */
+        = {0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,16,0};
+/* extended to deflate64: the last length code (285) will be extended by 16 extra bits */
 
-local const int extra_dbits[D_CODES] /* extra bits for each distance code */ /* extended for deflate64 */
-   = {0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13, 14, 14};
+local const int extra_dbits[D_CODES] /* extra bits for each distance code */
+   = {0,0,0,0,1,1,2,2,3,3,4,4,5,5,6,6,7,7,8,8,9,9,10,10,11,11,12,12,13,13,14,14};
+/* extended for deflate64: the distance code (30 and 31) not used for deflate but now extended to address a range of 64kbytes. These will be uses 14 extra bits. */
 
 local const int extra_blbits[BL_CODES]/* extra bits for each bit length code */
    = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,3,7};
@@ -252,7 +254,7 @@ local void tr_static_init()
     static_bl_desc.extra_bits = extra_blbits;
 #endif
 
-    /* Initialize the mapping length (0..255) -> length code (0..28) */
+    /* Initialize the mapping length (0..255) -> length code (0..29) */
     length = 0;
     for (code = 0; code < LENGTH_CODES-1; code++) {
         base_length[code] = length;
@@ -267,7 +269,7 @@ local void tr_static_init()
      */
     _length_code[length-1] = (uch)code;
 
-    /* Initialize the mapping dist (0..32K) -> dist code (0..29) */
+    /* Initialize the mapping dist (0..64k) -> dist code (0..31) */
     dist = 0;
     for (code = 0 ; code < 16; code++) {
         base_dist[code] = dist;
@@ -312,7 +314,7 @@ local void tr_static_init()
 }
 
 /* ===========================================================================
- * Genererate the file trees.h describing the static trees.
+ * Generate the file trees.h describing the static trees.
  */
 #ifdef GEN_TREES_H
 #  ifndef ZLIB_DEBUG

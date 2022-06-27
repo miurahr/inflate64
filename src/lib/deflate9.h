@@ -1,15 +1,7 @@
-/* inflate64.h -- internal compression state for inflate64.c
+/* deflate9.h -- internal compression state for deflate.c
  * Copyright (C) 1995-2018 Jean-loup Gailly
  * Copyright (C) 2022 Hiroshi Miura
- * For conditions of distribution and use, see copyright notice in zlib.h
  */
-
-/* WARNING: this file should *not* be used by applications. It is
-   part of the implementation of the compression library and is
-   subject to change. Applications should only use zlib.h.
- */
-
-/* @(#) $Id$ */
 
 #ifndef DEFLATE9_H
 #define DEFLATE9_H
@@ -27,13 +19,14 @@
 /* number of length codes, not counting the special END_BLOCK code */
 /* extended for deflate64 from 29 */
 
-#define LITERALS  256
+#define LITERALS  255
 /* number of literal bytes 0..255 */
+/* shrink to 255 for deflate64 */
 
 #define L_CODES (LITERALS+1+LENGTH_CODES)
 /* number of Literal or Length codes, including the END_BLOCK code */
 
-#define D_CODES   31
+#define D_CODES   32
 /* number of distance codes */
 /* extended for deflate64 from 30 */
 

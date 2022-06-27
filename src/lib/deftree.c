@@ -191,7 +191,7 @@ local void send_bits(s, value, length)
     int length; /* number of bits */
 {
     Tracevv((stderr," l %2d v %4x ", length, value));
-    Assert(length > 0 && length <= 15, "invalid length");
+    // Assert(length > 0 && length <= 15, "invalid length");
     s->bits_sent += (ulg)length;
 
     /* If not enough room in bi_buf, use (valid) bits from bi_buf and
@@ -254,7 +254,7 @@ local void tr_static_init()
     static_bl_desc.extra_bits = extra_blbits;
 #endif
 
-    /* Initialize the mapping length (0..255) -> length code (0..29) */
+    /* Initialize the mapping length (0..255..255+65536) -> length code (0..29) */
     length = 0;
     for (code = 0; code < LENGTH_CODES-1; code++) {
         base_length[code] = length;
@@ -262,12 +262,12 @@ local void tr_static_init()
             _length_code[length++] = (uch)code;
         }
     }
-    Assert (length == 256, "tr_static_init: length != 256");
+    Assert (length == 65792, "tr_static_init: length != 256+65536");
     /* Note that the length 255 (match length 258) can be represented
      * in two different ways: code 284 + 5 bits or code 285, so we
      * overwrite length_code[255] to use the best encoding:
      */
-    _length_code[length-1] = (uch)code;
+    //_length_code[length-1] = (uch)code;/
 
     /* Initialize the mapping dist (0..64k) -> dist code (0..31) */
     dist = 0;
@@ -285,7 +285,7 @@ local void tr_static_init()
             _dist_code[256 + dist++] = (uch)code;
         }
     }
-    Assert (dist == 256, "tr_static_init: 256+dist != 512");
+    Assert (dist == 512, "tr_static_init: 256+dist != 768");
 
     /* Construct the codes of the static literal tree */
     for (bits = 0; bits <= MAX_BITS; bits++) bl_count[bits] = 0;
@@ -920,44 +920,36 @@ void ZLIB_INTERNAL _tr_flush_block(s, buf, stored_len, last)
     ulg opt_lenb, static_lenb; /* opt_len and static_len in bytes */
     int max_blindex = 0;  /* index of last bit length code of non zero freq */
 
-    /* Build the Huffman trees unless a stored block is forced */
-    if (s->level > 0) {
+    /* Check if the file is binary or text */
+    if (s->strm->data_type == Z_UNKNOWN)
+        s->strm->data_type = detect_data_type(s);
 
-        /* Check if the file is binary or text */
-        if (s->strm->data_type == Z_UNKNOWN)
-            s->strm->data_type = detect_data_type(s);
+    /* Construct the literal and distance trees */
+    build_tree(s, (tree_desc *)(&(s->l_desc)));
+    Tracev((stderr, "\nlit data: dyn %ld, stat %ld", s->opt_len,
+            s->static_len));
 
-        /* Construct the literal and distance trees */
-        build_tree(s, (tree_desc *)(&(s->l_desc)));
-        Tracev((stderr, "\nlit data: dyn %ld, stat %ld", s->opt_len,
-                s->static_len));
+    build_tree(s, (tree_desc *)(&(s->d_desc)));
+    Tracev((stderr, "\ndist data: dyn %ld, stat %ld", s->opt_len,
+            s->static_len));
+    /* At this point, opt_len and static_len are the total bit lengths of
+     * the compressed block data, excluding the tree representations.
+     */
 
-        build_tree(s, (tree_desc *)(&(s->d_desc)));
-        Tracev((stderr, "\ndist data: dyn %ld, stat %ld", s->opt_len,
-                s->static_len));
-        /* At this point, opt_len and static_len are the total bit lengths of
-         * the compressed block data, excluding the tree representations.
-         */
+    /* Build the bit length tree for the above two trees, and get the index
+     * in bl_order of the last bit length code to send.
+     */
+    max_blindex = build_bl_tree(s);
 
-        /* Build the bit length tree for the above two trees, and get the index
-         * in bl_order of the last bit length code to send.
-         */
-        max_blindex = build_bl_tree(s);
+    /* Determine the best encoding. Compute the block lengths in bytes. */
+    opt_lenb = (s->opt_len+3+7)>>3;
+    static_lenb = (s->static_len+3+7)>>3;
 
-        /* Determine the best encoding. Compute the block lengths in bytes. */
-        opt_lenb = (s->opt_len+3+7)>>3;
-        static_lenb = (s->static_len+3+7)>>3;
+    Tracev((stderr, "\nopt %lu(%lu) stat %lu(%lu) stored %lu lit %u ",
+            opt_lenb, s->opt_len, static_lenb, s->static_len, stored_len,
+            s->sym_next / 3));
 
-        Tracev((stderr, "\nopt %lu(%lu) stat %lu(%lu) stored %lu lit %u ",
-                opt_lenb, s->opt_len, static_lenb, s->static_len, stored_len,
-                s->sym_next / 3));
-
-        if (static_lenb <= opt_lenb) opt_lenb = static_lenb;
-
-    } else {
-        Assert(buf != (char*)0, "lost buf");
-        opt_lenb = static_lenb = stored_len + 5; /* force a stored block */
-    }
+    if (static_lenb <= opt_lenb) opt_lenb = static_lenb;
 
 #ifdef FORCE_STORED
     if (buf != (char*)0) { /* force stored block */

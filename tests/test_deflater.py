@@ -21,5 +21,7 @@ def test_compress(fname, minsize, maxsize):
     compressor = inflate64.Deflater()
     compressed = compressor.deflate(data)
     compressed += compressor.flush()
-    assert len(compressed) > minsize
-    assert len(compressed) < maxsize
+    #
+    decompressor = inflate64.Inflater()
+    extracted = decompressor.inflate(compressed)
+    assert len(extracted) == len(data)

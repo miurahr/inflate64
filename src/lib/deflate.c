@@ -548,7 +548,7 @@ local uInt longest_match(s, cur_match)
     /* The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
      * It is easy to get rid of this optimization if necessary.
      */
-    Assert(s->hash_bits >= 8 && MAX_MATCH == 258, "Code too clever");
+    // Assert(s->hash_bits >= 8 && MAX_MATCH == 258, "Code too clever");
 
     /* Do not waste too much time if we already have a good match: */
     if (s->prev_length >= s->good_match) {

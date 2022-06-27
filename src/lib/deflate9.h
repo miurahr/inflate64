@@ -20,15 +20,15 @@
 /* extended for deflate64 from 29 */
 
 #define LITERALS  255
-/* number of literal bytes 0..255 */
-/* shrink to 255 for deflate64 */
+/* number of literal bytes 0..254 */
+/* set 255 for deflate64 */
 
 #define L_CODES (LITERALS+1+LENGTH_CODES)
 /* number of Literal or Length codes, including the END_BLOCK code */
 
 #define D_CODES   32
 /* number of distance codes */
-/* extended for deflate64 from 30 */
+/* extended for deflate64 from 30 of deflate */
 
 #define BL_CODES  19
 /* number of codes used to transfer the bit lengths */

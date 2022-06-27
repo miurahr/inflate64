@@ -19,7 +19,13 @@
 #  define ZLIB_INTERNAL
 #endif
 
+#ifndef local
+// #  define local static
 #  define local
+#endif
+/* since "static" is used to mean two completely different things in C, we
+   define "local" for the non-static meaning of "static", for readability
+   (compile with -Dlocal if your debugger can't find static symbols) */
 
 #include "zlib.h"
 
@@ -31,12 +37,6 @@
 #  include <stdlib.h>
 #endif
 
-#ifndef local
-// #  define local static
-#endif
-/* since "static" is used to mean two completely different things in C, we
-   define "local" for the non-static meaning of "static", for readability
-   (compile with -Dlocal if your debugger can't find static symbols) */
 
 typedef unsigned char  uch;
 typedef uch FAR uchf;
@@ -84,7 +84,8 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 /* The three kinds of block type */
 
 #define MIN_MATCH  3
-#define MAX_MATCH  258
+//#define MAX_MATCH  258
+#define MAX_MATCH  65538
 /* The minimum and maximum match lengths */
 
 #define PRESET_DICT 0x20 /* preset dictionary flag in zlib header */

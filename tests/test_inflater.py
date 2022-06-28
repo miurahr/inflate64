@@ -36,13 +36,13 @@ srcdata = testdata_path.joinpath("src.zip")
         ("test-file.20", 39588, 3355),
     ],
 )
-def test_inflater(tmp_path, fname, offset, length):
+def test_decompress(tmp_path, fname, offset, length):
     with testdata.open("rb") as f:
         _ = f.seek(offset, os.SEEK_SET)
         data = f.read(length)
     with zipfile.ZipFile(srcdata) as z:
         expected = z.read(fname)
-    inflater = inflate64.Inflater()
-    result = inflater.inflate(data)
+    decompressor = inflate64.Inflater()
+    result = decompressor.inflate(data)
     assert len(result) == len(expected)
     assert result == expected

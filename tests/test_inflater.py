@@ -1,10 +1,10 @@
 import os
 import pathlib
-import subprocess
 import zipfile
 
-import inflate64
 import pytest
+
+import inflate64
 
 testdata_path = pathlib.Path(os.path.dirname(__file__)).joinpath("data")
 testdata = testdata_path.joinpath("test-file.zip")

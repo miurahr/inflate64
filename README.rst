@@ -1,9 +1,22 @@
 inflate64
 =========
 
-inflate64 is a python package to provide decompression(inflate) of deflate64(tm), Enhanced Deflate,
-compression algorithm. The project is in pre-alpha stage.
+The inflate64 is a python package to provide an Inflater class for decompression
+of deflate64(tm), Enhanced Deflate, algorithm.
 
+The project status is in alpha stage.
+
+API
+---
+
+You can use inflate64 by instantiating ``Inflater`` class and call ``inflate`` method.
+
+```
+import inflate64
+
+decompressor = inflate64.Inflater()
+extracted = decompressor.inflate(data)
+```
 
 License
 -------

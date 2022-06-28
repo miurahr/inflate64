@@ -7,6 +7,11 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+v0.1.2_
+=======
+
+* Actions: Fix sdist build command to use pyproject.toml
+
 v0.1.1_
 =======
 
@@ -14,5 +19,6 @@ v0.1.1_
 * Support decompression/inflation
 
 .. History links
-.. _Unreleased: https://github.com/miurahr/inflate64/compare/v0.1.1...HEAD
+.. _Unreleased: https://github.com/miurahr/inflate64/compare/v0.1.2...HEAD
+.. _v0.1.2: https://github.com/miurahr/inflate64/compare/v0.1.1...v0.1.2
 .. _v0.1.1: https://github.com/miurahr/inflate64/compare/v0.1.0...v0.1.1

@@ -11,12 +11,12 @@ API
 
 You can use inflate64 by instantiating ``Inflater`` class and call ``inflate`` method.
 
-```
-import inflate64
+.. code-block:: python
 
-decompressor = inflate64.Inflater()
-extracted = decompressor.inflate(data)
-```
+  import inflate64
+  decompressor = inflate64.Inflater()
+  extracted = decompressor.inflate(data)
+
 
 License
 -------

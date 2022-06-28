@@ -13,10 +13,10 @@
  * the third parameter of the "out" function actually means 65536UL.
  */
 
-#include "zlib.h"
+#include "inflate64_config.h"
 
 #define WBITS64   16     /* 64K LZ77 window for deflate64 */
-#define MEM_LEVEL64   8  /* maximum compression */
+#define MEM_LEVEL64   9  /* maximum compression */
 
 #ifdef __cplusplus
 extern "C" {

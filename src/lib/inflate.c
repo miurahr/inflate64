@@ -1,6 +1,6 @@
 /* inflate.c -- zlib deflate64 decompression
  * Copyright (C) 1995-2022 Mark Adler
- * For conditions of distribution and use, see copyright notice in zlib.h
+ * Copyright (C) 2022 Hiroshi Miura
  */
 
 #include "util.h"
@@ -203,7 +203,7 @@ void makefixed()
     puts("");
     puts("    /* WARNING: this file should *not* be used by applications.");
     puts("       It is part of the implementation of this library and is");
-    puts("       subject to change. Applications should only use zlib.h.");
+    puts("       subject to change.");
     puts("     */");
     puts("");
     size = 1U << 9;
@@ -361,6 +361,9 @@ unsigned copy;
     } while (0)
 
 /*
+ *
+ * Original explanation of inflate()
+ ****************************************************
    inflate() uses a state machine to process as much input data and generate as
    much output data as possible before returning.  The state machine is
    structured roughly as follows:

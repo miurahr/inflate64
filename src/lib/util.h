@@ -5,6 +5,8 @@
 #ifndef ZUTIL_H
 #define ZUTIL_H
 
+#include "inflate64_config.h"
+
 #ifdef HAVE_HIDDEN
 #  define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
 #else
@@ -17,8 +19,6 @@
 /* since "static" is used to mean two completely different things in C, we
    define "local" for the non-static meaning of "static", for readability
    (compile with -Dlocal if your debugger can't find static symbols) */
-
-#include "zlib.h"
 
 #if defined(STDC) && !defined(Z_SOLO)
 #  if !(defined(_WIN32_WCE) && defined(_MSC_VER))

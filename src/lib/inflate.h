@@ -1,11 +1,11 @@
-/* inflate9.h -- internal inflate state definition
+/* inflate.h -- internal inflate state definition
  * Copyright (C) 1995-2003 Mark Adler
- * For conditions of distribution and use, see copyright notice in zlib.h
+ * Copyright (C) 2022 Hiroshi Miura
  */
 
 /* WARNING: this file should *not* be used by applications. It is
    part of the implementation of the compression library and is
-   subject to change. Applications should only use zlib.h.
+   subject to change.
  */
 
 /* Possible inflate modes between inflate() calls */

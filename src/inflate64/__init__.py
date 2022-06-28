@@ -1,11 +1,8 @@
 from importlib.metadata import PackageNotFoundError, version
 
-from ._inflate64 import (  # noqa
-    Deflater,
-    Inflater,
-)
+from ._inflate64 import Inflater  # noqa
 
-__all__ = ()
+__all__ = (Inflater)
 
 __doc__ = """\
 Python library to inflate data, the API is similar to Python's bz2/lzma/zlib module.

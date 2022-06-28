@@ -42,7 +42,7 @@ class build_ext_compiler_check(build_ext):
                 if WARNING_AS_ERROR:
                     extension.extra_compile_args.append("-Werror")
                 if DEBUG_BUILD:
-                    extension.extra_compile_args.append("-DZLIB_DEBUG")
+                    extension.extra_compile_args.extend(["-DZLIB_DEBUG"])
             elif self.compiler.compiler_type.lower() == "msvc":
                 # /GF eliminates duplicate strings
                 # /Gy does function level linking

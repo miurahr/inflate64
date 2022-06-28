@@ -1,7 +1,6 @@
 /* deflate9.c -- compress data using the deflation64 algorithm
  * Copyright (C) 1995-2022 Jean-loup Gailly and Mark Adler
  * Copyright (C) 2022 Hiroshi Miura
- * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
 /*

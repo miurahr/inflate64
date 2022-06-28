@@ -43,7 +43,7 @@ void makefixed9() {
     puts("");
     puts("    /* WARNING: this file should *not* be used by applications.");
     puts("       It is part of the implementation of this library and is");
-    puts("       subject to change. Applications should only use zlib.h.");
+    puts("       subject to change.");
     puts("     */");
     puts("");
     size = 1U << 9;

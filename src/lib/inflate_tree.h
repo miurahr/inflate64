@@ -1,4 +1,4 @@
-/* inftree9.h -- header to use inftree9.c
+/* inflate_tree.h -- header to use inflate_tree.c
  * Copyright (C) 1995-2008 Mark Adler
  */
 

@@ -5,6 +5,7 @@
 
 #ifndef DEFLATE9_H
 #define DEFLATE9_H
+
 #include "util.h"
 
 #ifndef local
@@ -43,8 +44,8 @@
 #define Buf_size 16
 /* size of bit buffer in bi_buf */
 
-#define INIT_STATE    42    /* zlib header -> BUSY_STATE */
-#define BUSY_STATE   113    /* deflate -> FINISH_STATE */
+#define INIT_STATE    42    /* deflate -> BUSY_STATE */
+#define BUSY_STATE   113    /* finish deflate -> FINISH_STATE */
 #define FINISH_STATE 666    /* stream complete */
 /* Stream status */
 

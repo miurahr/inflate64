@@ -5,8 +5,8 @@ import zipfile
 import pytest
 
 import inflate64
+from inflate64 import dev
 
-BLOCKSIZE = 8192
 testdata_path = pathlib.Path(os.path.dirname(__file__)).joinpath("data")
 srcdata = testdata_path.joinpath("src.zip")
 
@@ -18,7 +18,7 @@ srcdata = testdata_path.joinpath("src.zip")
 def test_compress(fname, minsize, maxsize):
     with zipfile.ZipFile(srcdata) as f:
         data = f.read(fname)
-    compressor = inflate64.Deflater()
+    compressor = dev.Deflater()
     compressed = compressor.deflate(data)
     compressed += compressor.flush()
     #

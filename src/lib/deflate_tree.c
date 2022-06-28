@@ -1,7 +1,6 @@
 /* trees.c -- output deflated data using Huffman coding
  * Copyright (C) 1995-2021 Jean-loup Gailly
  * detect_data_type() function provided freely by Cosmin Truta, 2006
- * For conditions of distribution and use, see copyright notice in zlib.h
  */
 
 /*
@@ -30,7 +29,6 @@
  *          Addison-Wesley, 1983. ISBN 0-201-06672-6.
  */
 
-/* @(#) $Id$ */
 
 // #define GEN_TREES_H
 

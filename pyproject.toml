@@ -34,8 +34,6 @@ dynamic = ["version"]
 test = [
       "pytest",
       "pyannotate",
-      "atheris",
-      "hypothesis"
 ]
 docs = [
       "sphinx>=5.0",
@@ -52,11 +50,6 @@ check = [
       "pygments",
       "readme-renderer",
       "twine",
-]
-debug = [
-      "pytest",
-      "pytest-leaks",
-      "pytest-profiling",
 ]
 
 [build-system]

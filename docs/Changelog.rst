@@ -7,6 +7,11 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+v0.1.3_
+=======
+
+* Add Python 3.11 beta wheels.
+
 v0.1.2_
 =======
 
@@ -19,6 +24,7 @@ v0.1.1_
 * Support decompression/inflation
 
 .. History links
-.. _Unreleased: https://github.com/miurahr/inflate64/compare/v0.1.2...HEAD
+.. _Unreleased: https://github.com/miurahr/inflate64/compare/v0.1.3...HEAD
+.. _v0.1.2: https://github.com/miurahr/inflate64/compare/v0.1.2...v0.1.3
 .. _v0.1.2: https://github.com/miurahr/inflate64/compare/v0.1.1...v0.1.2
 .. _v0.1.1: https://github.com/miurahr/inflate64/compare/v0.1.0...v0.1.1

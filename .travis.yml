@@ -1,0 +1,16 @@
+os: linux
+dist: focal
+language: python
+
+jobs:
+  include:
+    # perform a linux ARMv8 build
+    - services: docker
+      arch: arm64
+
+install:
+  - python3 -m pip install cibuildwheel==2.8.0
+
+script:
+  # build the wheels, put them into './wheelhouse'
+  - python3 -m cibuildwheel --output-dir wheelhouse

@@ -4,24 +4,32 @@ image:
 - Ubuntu
 - Visual Studio 2019
 environment:
+  TOXENV: py38
   CIBW_ARCHS_MACOS: x86_64 universal2 arm64
   CIBW_ARCHS_LINUX: auto
   CIBW_PRERELEASE_PYTHONS: True
 build_script:
 - ps: >-
-    & python3 -m pip install -U setuptools setuptools_scm[toml] tox build twine
-    & python3 -m tox
     if ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Ubuntu") {
-      & python3 -m build --sdist
+        & pip install -U pip setuptools setuptools_scm[toml] tox build twine --user
+        & tox
+        & python -m build --sdist
+    } elseif ($env:APPVEYOR_BUILD_WORKER_IMAGE -eq "Visual Studio 2019") {
+        & py -m pip install -U pip setuptools setuptools_scm[toml] tox build twine --user
+        & py -m tox 
+    } else (
+        & pip install -U pip setuptools setuptools_scm[toml] tox build twine --user
+        & tox
+        & python -m build --sdist
     }
     if ($env:APPVEYOR_REPO_TAG -eq "true" -and $env:APPVEYOR_REPO_TAG_NAME.StartsWith("v")) {
-      & python3 -m pip install cibuildwheel==2.8.0
-      & python3 -m cibuildwheel --output-dir wheelhouse .
-      & python3 -m twine upload --non-interactive -r pypi wheelhouse/*.whl dist/*
+      & python -m pip install cibuildwheel==2.8.0
+      & python -m cibuildwheel --output-dir wheelhouse .
+      & python -m twine upload --non-interactive -r pypi wheelhouse/*.whl dist/*
     } elseif ($env:APPVEYOR_REPO_BRANCH.StartsWith("releases/")) {
-      & python3 -m pip install cibuildwheel==2.8.0
-      & python3 -m cibuildwheel --output-dir wheelhouse .
-      & python3 -m twine upload --non-interactive -r testpypi wheelhouse/*.whl dist/*
+      & python -m pip install cibuildwheel==2.8.0
+      & python -m cibuildwheel --output-dir wheelhouse .
+      & python -m twine upload --non-interactive -r testpypi wheelhouse/*.whl dist/*
     } else {
       Write-Output "Skip build wheel"
     }

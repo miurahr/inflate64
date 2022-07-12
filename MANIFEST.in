@@ -11,4 +11,4 @@ recursive-include src *.h
 recursive-include tests *.py
 recursive-include tests *.zip
 exclude .gitignore
-prune .github
+exclude appveyor.yml

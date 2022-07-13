@@ -11,5 +11,5 @@ recursive-include src *.h
 recursive-include tests *.py
 recursive-include tests *.zip
 exclude .gitignore
-exclude appveyor.yml
+prune ci
 prune ISSUE_TEMPLATE

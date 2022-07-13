@@ -1,0 +1,36 @@
+# Variable 'python.version' was defined in the Variables tab
+# Agent Queue 'Azure Pipelines' was used with unrecognized Agent Specification, vmImage property must be specified to determine image - https://docs.microsoft.com/en-us/azure/devops/pipelines/agents/hosted?view=azure-devops&tabs=yaml#software
+# Multi-job configuration must be converted to matrix strategy: https://docs.microsoft.com/en-us/azure/devops/pipelines/process/phases?view=azure-devops&tabs=yaml#multi-job-configuration
+trigger:
+  branches:
+    include:
+    - refs/heads/main
+name: $(date:yyyyMMdd)$(rev:.r)
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: refs/heads/main
+jobs:
+- job: Phase_1
+  displayName: Build and Test
+  pool:
+    name: Azure Pipelines
+  steps:
+  - checkout: self
+    clean: true
+  - task: UsePythonVersion@0
+    displayName: Use Python $(python.version)
+    inputs:
+      versionSpec: $(python.version)
+      disableDownloadFromRegistry: true
+      allowUnstable: true
+  - task: CmdLine@2
+    displayName: Install dependencies
+    inputs:
+      script: python -m pip install --upgrade pip setuptools setuptools_scm[toml] coverage[toml] tox importlib_metadata
+  - task: CmdLine@2
+    displayName: run tox
+    inputs:
+      script: python -m tox -e py
+...

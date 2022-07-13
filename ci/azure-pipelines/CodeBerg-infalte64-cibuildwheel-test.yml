@@ -1,0 +1,143 @@
+trigger:
+  branches:
+    include:
+    - refs/heads/releases/*
+    - refs/heads/main
+resources:
+  repositories:
+  - repository: self
+    type: git
+    ref: refs/heads/main
+jobs:
+- job: Job_1
+  displayName: linux
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - checkout: self
+    clean: true
+  - task: UsePythonVersion@0
+    displayName: Use Python 3.x
+    inputs:
+      disableDownloadFromRegistry: true
+  - task: Bash@3
+    displayName: Install dependencies
+    inputs:
+      targetType: inline
+      script: >
+        set -o errexit
+
+        python3 -m pip install --upgrade pip
+
+        pip3 install cibuildwheel==2.8.0
+  - task: Bash@3
+    displayName: Build wheels
+    inputs:
+      targetType: inline
+      script: cibuildwheel --output-dir wheelhouse .
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifact
+    inputs:
+      PathtoPublish: wheelhouse
+      ArtifactName: wheelhouse
+- job: Job_2
+  displayName: macos
+  pool:
+    vmImage: macos-latest
+  steps:
+  - checkout: self
+    clean: true
+  - task: UsePythonVersion@0
+    displayName: Use Python 3.x
+    inputs:
+      disableDownloadFromRegistry: true
+  - task: Bash@3
+    displayName: Install dependencies
+    inputs:
+      targetType: inline
+      script: >
+        set -o errexit
+
+        python3 -m pip install --upgrade pip
+
+        python3 -m pip install cibuildwheel==2.8.0
+  - task: Bash@3
+    displayName: Build wheels
+    inputs:
+      targetType: inline
+      script: >
+        cibuildwheel --output-dir wheelhouse .
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifact
+    inputs:
+      PathtoPublish: wheelhouse
+      ArtifactName: wheelhouse
+- job: Job_3
+  displayName: windows
+  pool:
+    vmImage: windows-latest
+  steps:
+  - checkout: self
+    clean: true
+  - task: UsePythonVersion@0
+    displayName: Use Python 3.x
+    inputs:
+      disableDownloadFromRegistry: true
+  - task: Bash@3
+    displayName: Install dependecies
+    inputs:
+      targetType: inline
+      script: >
+        set -o errexit
+
+        python -m pip install --upgrade pip
+
+        pip install cibuildwheel==2.8.0
+  - task: Bash@3
+    displayName: Build wheels
+    inputs:
+      targetType: inline
+      script: cibuildwheel --output-dir wheelhouse .
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifact
+    inputs:
+      PathtoPublish: wheelhouse
+      ArtifactName: wheelhouse
+- job: Job_4
+  displayName: Publish to PyPI
+  dependsOn:
+  - Job_1
+  - Job_2
+  - Job_3
+  pool:
+    vmImage: ubuntu-latest
+  steps:
+  - checkout: self
+    clean: true
+  - task: UsePythonVersion@0
+    displayName: Use Python 3.x
+  - task: DownloadBuildArtifacts@1
+    displayName: Download Build Artifacts
+    inputs:
+      artifactName: wheelhouse
+      itemPattern: >
+        **
+      downloadPath: wheelhouse
+  - task: Bash@3
+    displayName: Install Dependencies
+    inputs:
+      targetType: inline
+      script: >
+        python -m pip install twine
+  - task: TwineAuthenticate@1
+    displayName: Twine Authenticate (testpyoi)
+    inputs:
+      pythonUploadServiceConnection: cbfae95a-b677-4758-896a-7086730240dd
+  - task: Bash@3
+    displayName: Upload to Python Package Index(test)
+    inputs:
+      targetType: inline
+      script: >+
+        python -m twine upload  --repository testpypi --config-file $(PYPIRC_PATH) wheelhouse/wheelhouse/*.whl
+
+...

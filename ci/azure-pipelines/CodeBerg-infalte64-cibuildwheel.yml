@@ -138,11 +138,23 @@ jobs:
     displayName: Twine Authenticate (pypi)
     inputs:
       pythonUploadServiceConnection: 899a9551-6c03-4502-a494-b5c6bb1a964a
+    condition: startsWith(variables['build.sourceBranch'], 'refs/tags/v')
   - task: Bash@3
     displayName: Upload to Python Package Index
     inputs:
       targetType: inline
       script: >+
         python -m twine upload  --repository pypi --config-file $(PYPIRC_PATH) wheelhouse/wheelhouse/*.whl dist/*.tar.gz
-
-...
+    condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/tags/v'))
+  - task: TwineAuthenticate@1
+    displayName: Twine Authenticate (testpyoi)
+    inputs:
+      pythonUploadServiceConnection: cbfae95a-b677-4758-896a-7086730240dd
+    condition: and(not(startsWith(variables['build.sourceBranch'], 'refs/tags/v')), startsWith(variables['build.sourceBranch'], 'refs/heads/releases/'))
+  - task: Bash@3
+    displayName: Upload to Python Package Index(test)
+    inputs:
+      targetType: inline
+      script: >+
+        python -m twine upload  --repository testpypi --config-file $(PYPIRC_PATH) wheelhouse/wheelhouse/*.whl
+    condition: and(succeeded(), not(startsWith(variables['build.sourceBranch'], 'refs/tags/v')), startsWith(variables['build.sourceBranch'], 'refs/heads/releases/'))

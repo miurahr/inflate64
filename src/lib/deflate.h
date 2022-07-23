@@ -275,11 +275,11 @@ typedef struct internal_state {
         /* in trees.c */
 void ZLIB_INTERNAL _tr_init OF((deflate_state *s));
 int ZLIB_INTERNAL _tr_tally OF((deflate_state *s, unsigned dist, unsigned lc));
-void ZLIB_INTERNAL _tr_flush_block OF((deflate_state *s, charf *buf,
+void ZLIB_INTERNAL _tr_flush_block OF((deflate_state *s, char FAR *buf,
                         ulg stored_len, int last));
 void ZLIB_INTERNAL _tr_flush_bits OF((deflate_state *s));
 void ZLIB_INTERNAL _tr_align OF((deflate_state *s));
-void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, charf *buf,
+void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, char FAR *buf,
                         ulg stored_len, int last));
 
 #define d_code(dist) \

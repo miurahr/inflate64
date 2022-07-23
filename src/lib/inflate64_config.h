@@ -8,6 +8,12 @@
 #define MEM_LEVEL64   9  /* maximum compression */
 #define WBITS64   16     /* 64K LZ77 window for deflate64 */
 
+#ifdef __STDC__
+#ifndef STDC
+#define STDC
+#endif
+#endif
+
 /* Type declarations */
 
 #ifndef OF /* function prototypes */

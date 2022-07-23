@@ -948,7 +948,7 @@ local block_state deflate9_(s, flush)
             s->lookahead--;
         }
     }
-    // Assert (flush != Z_NO_FLUSH, "no flush?");
+    Assert (flush != Z_NO_FLUSH, "no flush?");
     if (s->match_available) {
         Tracevv((stderr,"%c", s->window[s->strstart-1]));
         _tr_tally_lit(s, s->window[s->strstart-1], bflush);

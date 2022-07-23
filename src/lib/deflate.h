@@ -18,18 +18,17 @@
 
 #define LENGTH_CODES 30
 /* number of length codes, not counting the special END_BLOCK code */
-/* extended for deflate64 from 29 */
+/* extended (+1) for deflate64 from 29 */
 
-#define LITERALS  255
-/* number of literal bytes 0..254 */
-/* set 255 for deflate64 */
+#define LITERALS  256
+/* number of literal bytes 0..255 */
 
 #define L_CODES (LITERALS+1+LENGTH_CODES)
 /* number of Literal or Length codes, including the END_BLOCK code */
 
 #define D_CODES   32
 /* number of distance codes */
-/* extended for deflate64 from 30 of deflate */
+/* extended +2 for deflate64 from 30 of deflate */
 
 #define BL_CODES  19
 /* number of codes used to transfer the bit lengths */
@@ -37,9 +36,8 @@
 #define HEAP_SIZE (2*L_CODES+1)
 /* maximum heap size */
 
-#define MAX_BITS 16
+#define MAX_BITS 15
 /* All codes must not exceed MAX_BITS bits */
-/* extended for deflate64 from 15 */
 
 #define Buf_size 16
 /* size of bit buffer in bi_buf */
@@ -293,10 +291,10 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, char FAR *buf,
 /* Inline versions of _tr_tally for speed: */
 
 #if defined(GEN_TREES_H) || !defined(STDC)
-  extern uch ZLIB_INTERNAL _length_code[];
+  extern uch ZLIB_INTERNAL length_code[];
   extern uch ZLIB_INTERNAL _dist_code[];
 #else
-  extern const unsigned char ZLIB_INTERNAL _length_code[];
+  extern uch ZLIB_INTERNAL length_code[];
   extern const unsigned char ZLIB_INTERNAL _dist_code[];
 #endif
 
@@ -315,7 +313,7 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, char FAR *buf,
     s->sym_buf[s->sym_next++] = dist >> 8; \
     s->sym_buf[s->sym_next++] = len; \
     dist--; \
-    s->dyn_ltree[_length_code[len]+LITERALS+1].Freq++; \
+    s->dyn_ltree[length_code[len]+LITERALS+1].Freq++; \
     s->dyn_dtree[d_code(dist)].Freq++; \
     flush = (s->sym_next == s->sym_end); \
   }

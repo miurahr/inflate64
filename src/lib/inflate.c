@@ -247,7 +247,7 @@ void makefixed()
  */
 local int updatewindow(strm, end, copy)
 z_streamp strm;
-const Bytef *end;
+const Byte FAR *end;
 unsigned copy;
 {
     struct inflate_state FAR *state;

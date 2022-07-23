@@ -21,7 +21,7 @@ z_const char * const z_errmsg[10] = {
 #ifdef ZLIB_DEBUG
 #include <stdlib.h>
 #  ifndef verbose
-#    define verbose 2
+#    define verbose 0
 #  endif
 int ZLIB_INTERNAL z_verbose = verbose;
 
@@ -36,8 +36,8 @@ void ZLIB_INTERNAL z_error (m)
 #ifndef HAVE_MEMCPY
 
 void ZLIB_INTERNAL zmemcpy(dest, source, len)
-    Bytef* dest;
-    const Bytef* source;
+    Byte FAR* dest;
+    const Byte FAR* source;
     uInt  len;
 {
     if (len == 0) return;
@@ -47,8 +47,8 @@ void ZLIB_INTERNAL zmemcpy(dest, source, len)
 }
 
 int ZLIB_INTERNAL zmemcmp(s1, s2, len)
-    const Bytef* s1;
-    const Bytef* s2;
+    const Byte FAR* s1;
+    const Byte FAR* s2;
     uInt  len;
 {
     uInt j;
@@ -60,7 +60,7 @@ int ZLIB_INTERNAL zmemcmp(s1, s2, len)
 }
 
 void ZLIB_INTERNAL zmemzero(dest, len)
-    Bytef* dest;
+    Byte FAR* dest;
     uInt  len;
 {
     if (len == 0) return;

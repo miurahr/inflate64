@@ -69,7 +69,7 @@ local void fill_window    OF((deflate_state *s));
 local block_state deflate9_  OF((deflate_state *s, int flush));
 local void lm_init        OF((deflate_state *s));
 local void flush_pending  OF((z_streamp strm));
-local unsigned read_buf   OF((z_streamp strm, Bytef *buf, unsigned size));
+local unsigned read_buf   OF((z_streamp strm, Byte FAR *buf, unsigned size));
 local uInt longest_match  OF((deflate_state *s, IPos cur_match));
 
 #ifdef ZLIB_DEBUG
@@ -125,7 +125,7 @@ local  void check_match OF((deflate_state *s, IPos start, IPos match, int length
 #define CLEAR_HASH(s) \
     do { \
         s->head[s->hash_size-1] = NIL; \
-        zmemzero((Bytef *)s->head, \
+        zmemzero((Byte FAR *)s->head, \
                  (unsigned)(s->hash_size-1)*sizeof(*s->head)); \
     } while (0)
 
@@ -189,7 +189,7 @@ int ZEXPORT deflate9Init2(strm)
     s->hash_mask = s->hash_size - 1;
     s->hash_shift =  ((s->hash_bits+MIN_MATCH-1)/MIN_MATCH);
 
-    s->window = (Bytef *) ZALLOC(strm, s->w_size, 2*sizeof(Byte));
+    s->window = (Byte FAR *) ZALLOC(strm, s->w_size, 2*sizeof(Byte));
     s->prev   = (Posf *)  ZALLOC(strm, s->w_size, sizeof(Pos));
     s->head   = (Posf *)  ZALLOC(strm, s->hash_size, sizeof(Pos));
 
@@ -458,7 +458,7 @@ int ZEXPORT deflate9End (z_streamp strm) {
  */
 local unsigned read_buf(strm, buf, size)
     z_streamp strm;
-    Bytef *buf;
+    Byte FAR *buf;
     unsigned size;
 {
     unsigned len = strm->avail_in;
@@ -518,8 +518,8 @@ local uInt longest_match(s, cur_match)
     IPos cur_match;                             /* current match */
 {
     unsigned chain_length = s->max_chain_length;/* max hash chain length */
-    register Bytef *scan = s->window + s->strstart; /* current string */
-    register Bytef *match;                      /* matched string */
+    register Byte FAR *scan = s->window + s->strstart; /* current string */
+    register Byte FAR *match;                      /* matched string */
     register int len;                           /* length of current match */
     int best_len = (int)s->prev_length;         /* best match length so far */
     int nice_match = s->nice_match;             /* stop if match long enough */
@@ -535,11 +535,11 @@ local uInt longest_match(s, cur_match)
     /* Compare two bytes at a time. Note: this is not always beneficial.
      * Try with and without -DUNALIGNED_OK to check.
      */
-    register Bytef *strend = s->window + s->strstart + MAX_MATCH - 1;
-    register unsigned short scan_start = *(ushf*)scan;
-    register unsigned short scan_end   = *(ushf*)(scan+best_len-1);
+    register Byte FAR *strend = s->window + s->strstart + MAX_MATCH - 1;
+    register unsigned short scan_start = *(ush FAR*)scan;
+    register unsigned short scan_end   = *(ush FAR*)(scan+best_len-1);
 #else
-    register Bytef *strend = s->window + s->strstart + MAX_MATCH;
+    register Byte FAR *strend = s->window + s->strstart + MAX_MATCH;
     register Byte scan_end1  = scan[best_len-1];
     register Byte scan_end   = scan[best_len];
 #endif
@@ -578,8 +578,8 @@ local uInt longest_match(s, cur_match)
         /* This code assumes sizeof(unsigned short) == 2. Do not use
          * UNALIGNED_OK if your compiler uses a different size.
          */
-        if (*(ushf*)(match+best_len-1) != scan_end ||
-            *(ushf*)match != scan_start) continue;
+        if (*(ush FAR*)(match+best_len-1) != scan_end ||
+            *(ush FAR*)match != scan_start) continue;
 
         /* It is not necessary to compare scan[2] and match[2] since they are
          * always equal when the other bytes match, given that the hash keys
@@ -593,10 +593,10 @@ local uInt longest_match(s, cur_match)
         Assert(scan[2] == match[2], "scan[2]?");
         scan++, match++;
         do {
-        } while (*(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
+        } while (*(ush FAR*)(scan+=2) == *(ush FAR*)(match+=2) &&
+                 *(ush FAR*)(scan+=2) == *(ush FAR*)(match+=2) &&
+                 *(ush FAR*)(scan+=2) == *(ush FAR*)(match+=2) &&
+                 *(ush FAR*)(scan+=2) == *(ush FAR*)(match+=2) &&
                  scan < strend);
         /* The funny "do {}" generates better code on most compilers */
 
@@ -647,7 +647,7 @@ local uInt longest_match(s, cur_match)
                 break;
             }
 #ifdef UNALIGNED_OK
-            scan_end = *(ushf*)(scan+best_len-1);
+            scan_end = *(ush FAR*)(scan+best_len-1);
 #else
             scan_end1 = scan[best_len - 1];
             scan_end = scan[best_len];
@@ -833,8 +833,8 @@ local void fill_window(s)
  */
 #define FLUSH_BLOCK_ONLY(s, last) { \
    _tr_flush_block(s, (s->block_start >= 0L ? \
-                   (charf *)&s->window[(unsigned)s->block_start] : \
-                   (charf *)Z_NULL), \
+                   (char FAR *)&s->window[(unsigned)s->block_start] : \
+                   (char FAR *)Z_NULL), \
                 (unsigned long)((long)s->strstart - s->block_start), \
                 (last)); \
    s->block_start = s->strstart; \

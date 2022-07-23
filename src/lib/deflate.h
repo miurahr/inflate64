@@ -86,9 +86,9 @@ typedef unsigned IPos;
 typedef struct internal_state {
     z_streamp strm;      /* pointer back to this zlib stream */
     int   status;        /* as the name implies */
-    Bytef *pending_buf;  /* output still pending */
+    Byte FAR *pending_buf;  /* output still pending */
     unsigned long   pending_buf_size; /* size of pending_buf */
-    Bytef *pending_out;  /* next pending byte to output to the stream */
+    Byte FAR *pending_out;  /* next pending byte to output to the stream */
     unsigned long   pending;       /* nb of bytes in the pending buffer */
     int   last_flush;    /* value of flush param for previous deflate call */
 
@@ -98,7 +98,7 @@ typedef struct internal_state {
     uInt w_bits;                  /* 8..16 */
     unsigned long  w_mask;        /* w_size - 1 */
 
-    Bytef *window;
+    Byte FAR *window;
     /* Sliding window. Input bytes are read into the second half of the window,
      * and move to the first half later to keep a dictionary of at least wSize
      * bytes. With this organization, matches are limited to a distance of
@@ -255,7 +255,7 @@ typedef struct internal_state {
 /* Output a byte on the stream.
  * IN assertion: there is enough room in pending_buf.
  */
-#define put_byte(s, c) {s->pending_buf[s->pending++] = (Bytef)(c);}
+#define put_byte(s, c) {s->pending_buf[s->pending++] = (Byte FAR)(c);}
 
 
 #define MIN_LOOKAHEAD (MAX_MATCH+MIN_MATCH+1)

@@ -5,32 +5,10 @@
 #ifndef DEFLATE9_INFLATE64_CONFIG_H
 #define DEFLATE9_INFLATE64_CONFIG_H
 
-#  define z_longlong long long
-#  if defined(NO_SIZE_T)
-typedef unsigned NO_SIZE_T z_size_t;
-#  elif defined(STDC)
-#    include <stddef.h>
-     typedef size_t z_size_t;
-#  else
-typedef unsigned long z_size_t;
-#  endif
-#  undef z_longlong
+#define MEM_LEVEL64   9  /* maximum compression */
+#define WBITS64   16     /* 64K LZ77 window for deflate64 */
 
-/* Maximum value for memLevel in deflateInit2 */
-#ifndef MAX_MEM_LEVEL
-#  ifdef MAXSEG_64K
-#    define MAX_MEM_LEVEL 8
-#  else
-#    define MAX_MEM_LEVEL 9
-#  endif
-#endif
-
-/* Maximum value for windowBits in deflateInit2 and inflateInit2. */
-#ifndef MAX_WBITS
-#  define MAX_WBITS   16 /* 64K LZ77 window */
-#endif
-
-                        /* Type declarations */
+/* Type declarations */
 
 #ifndef OF /* function prototypes */
 #  ifdef STDC
@@ -64,11 +42,6 @@ typedef unsigned char  Byte;  /* 8 bits */
 #endif
 typedef unsigned int   uInt;  /* 16 bits or more */
 typedef unsigned long  uLong; /* 32 bits or more */
-typedef Byte  FAR Bytef;
-typedef char  FAR charf;
-typedef int   FAR intf;
-typedef uInt  FAR uIntf;
-typedef uLong FAR uLongf;
 
 #ifdef STDC
    typedef void const *voidpc;
@@ -103,11 +76,11 @@ typedef void   (*free_func)  OF((voidpf opaque, voidpf address));
 struct internal_state;
 
 typedef struct z_stream_s {
-    z_const Bytef *next_in;     /* next input byte */
+    z_const Byte FAR *next_in;     /* next input byte */
     uInt     avail_in;  /* number of bytes available at next_in */
     uLong    total_in;  /* total number of input bytes read so far */
 
-    Bytef    *next_out; /* next output byte will go here */
+    Byte FAR    *next_out; /* next output byte will go here */
     uInt     avail_out; /* remaining free space at next_out */
     uLong    total_out; /* total number of bytes output so far */
 

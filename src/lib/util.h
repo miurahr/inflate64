@@ -28,11 +28,8 @@
 #  include <stdlib.h>
 #endif
 
-
 typedef unsigned char  uch;
-typedef uch FAR uchf;
 typedef unsigned short ush;
-typedef ush FAR ushf;
 typedef unsigned long  ulg;
 
 extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
@@ -79,9 +76,9 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
 #    define zmemcmp memcmp
 #    define zmemzero(dest, len) memset(dest, 0, len)
 #else
-   void ZLIB_INTERNAL zmemcpy OF((Bytef* dest, const Bytef* source, uInt len));
-   int ZLIB_INTERNAL zmemcmp OF((const Bytef* s1, const Bytef* s2, uInt len));
-   void ZLIB_INTERNAL zmemzero OF((Bytef* dest, uInt len));
+   void ZLIB_INTERNAL zmemcpy OF((Byte FAR* dest, const Byte FAR* source, uInt len));
+   int ZLIB_INTERNAL zmemcmp OF((const Byte FAR* s1, const Byte FAR* s2, uInt len));
+   void ZLIB_INTERNAL zmemzero OF((Byte FAR* dest, uInt len));
 #endif
 
 /* Diagnostic functions */
@@ -90,17 +87,13 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
    extern int ZLIB_INTERNAL z_verbose;
    extern void ZLIB_INTERNAL z_error OF((char *m));
 #  define Assert(cond,msg) {if(!(cond)) z_error(msg);}
-#  define Trace(x) {if (z_verbose>=0) fprintf x ;}
 #  define Tracev(x) {if (z_verbose>0) fprintf x ;}
 #  define Tracevv(x) {if (z_verbose>1) fprintf x ;}
-#  define Tracec(c,x) {if (z_verbose>0 && (c)) fprintf x ;}
 #  define Tracecv(c,x) {if (z_verbose>1 && (c)) fprintf x ;}
 #else
 #  define Assert(cond,msg)
-#  define Trace(x)
 #  define Tracev(x)
 #  define Tracevv(x)
-#  define Tracec(c,x)
 #  define Tracecv(c,x)
 #endif
 

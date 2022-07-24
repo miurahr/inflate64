@@ -5,6 +5,17 @@
 #ifndef DEFLATE9_INFLATE64_CONFIG_H
 #define DEFLATE9_INFLATE64_CONFIG_H
 
+/* common constants */
+
+#define STORED_BLOCK 0
+#define STATIC_TREES 1
+#define DYN_TREES    2
+/* The three kinds of block type */
+
+#define MIN_MATCH  3
+#define MAX_MATCH  65538
+/* The minimum and maximum match lengths */
+
 #define MEM_LEVEL64   9  /* maximum compression */
 #define WBITS64   16     /* 64K LZ77 window for deflate64 */
 
@@ -42,6 +53,10 @@
 #  define const
 #endif
 #define z_const const
+
+typedef unsigned char  uch;
+typedef unsigned short ush;
+typedef unsigned long  ulg;
 
 #if !defined(__MACTYPES__)
 typedef unsigned char  Byte;  /* 8 bits */
@@ -148,5 +163,26 @@ typedef z_stream FAR *z_streamp;
 #define Z_TEXT     1
 #define Z_UNKNOWN  2
 /* Possible values of the data_type field for deflate() */
+
+#ifdef HAVE_HIDDEN
+#  define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+#else
+#  define ZLIB_INTERNAL
+#endif
+
+#ifndef local
+#  define local static
+#endif
+/* since "static" is used to mean two completely different things in C, we
+   define "local" for the non-static meaning of "static", for readability
+   (compile with -Dlocal if your debugger can't find static symbols) */
+
+#if defined(STDC) && !defined(Z_SOLO)
+#  if !defined(_MSC_VER)
+#    include <stddef.h>
+#  endif
+#  include <string.h>
+#  include <stdlib.h>
+#endif
 
 #endif //DEFLATE9_INFLATE64_CONFIG_H

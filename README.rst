@@ -1,10 +1,9 @@
 inflate64
 =========
 
-The inflate64 is a python package to provide an Inflater class for decompression
-of deflate64(tm), Enhanced Deflate, algorithm.
+The inflate64 is a python package to provide an ``Inflater`` class to decompress with Enhanced Deflate algorithm.
 
-The project status is in alpha stage.
+The project status is in ``Alpha`` stage.
 
 API
 ---
@@ -34,3 +33,7 @@ Lesser General Public License for more details.
 You should have received a copy of the GNU Lesser General Public
 License along with this library; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+
+.. note::
+   Please note that Enhanced Deflate algorithm is also known as `DEFLATE64` :sup:`TM`
+   that is a registered trademark of `PKWARE, Inc.`

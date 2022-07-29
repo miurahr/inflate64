@@ -1,17 +1,57 @@
 trigger:
   branches:
     include:
-    - refs/tags/v*
+    - releases/*
+    - main
 resources:
   repositories:
   - repository: self
     type: git
     ref: refs/heads/main
 jobs:
-- job: Job_1
-  displayName: linux
+- job: Job_5
+  displayName: Check and build sdist
+  strategy:
+    matrix:
+      py38:
+        - python.version: 3.8
+      py39:
+        - python.version: 3.9
+      py310:
+        - python.version: 3.10
   pool:
-    vmImage: ubuntu-latest
+    vmImage: ubuntu-2204
+  steps:
+  - checkout: self
+    clean: true
+  - task: UsePythonVersion@0
+    displayName: Use Python $(python.version)
+    inputs:
+      versionSpec: $(python.version)
+  - task: Bash@3
+    displayName: Run tox check
+    inputs:
+      targetType: inline
+      script: >-
+        python -m pip install --upgrade pip setuptools setuptools_scm[toml] coverage[toml] tox importlib_metadata build
+        python -m tox -e py
+  - task: Bash@3
+    displayName: build sdist
+    condition: eq(variables['python.version'], '3.8')
+    inputs:
+      targetType: inline
+      script: python -m build --sdist
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifact
+    condition: eq(variables['python.version'], '3.8')
+    inputs:
+      PathtoPublish: dist
+      ArtifactName: wheelhouse
+- job: Job_1
+  displayName: cibuildwheel(linux)
+  dependsOn: Job_5
+  pool:
+    vmImage: ubuntu-2204
   steps:
   - checkout: self
     clean: true
@@ -25,9 +65,7 @@ jobs:
       targetType: inline
       script: >
         set -o errexit
-
         python3 -m pip install --upgrade pip
-
         pip3 install cibuildwheel==2.8.0
   - task: Bash@3
     displayName: Build wheels
@@ -39,10 +77,41 @@ jobs:
     inputs:
       PathtoPublish: wheelhouse
       ArtifactName: wheelhouse
-- job: Job_2
-  displayName: macos
+- job: Job_6
+  displayName: cibuildwheel(aarch64)
+  dependsOn: Job_5
   pool:
-    vmImage: macos-latest
+    vmImage: ubuntu-2204
+  steps:
+  - checkout: self
+    clean: true
+  - task: UsePythonVersion@0
+    displayName: Use Python 3.x
+  - task: Bash@3
+    displayName: Install dependencies and qemu
+    inputs:
+      targetType: inline
+      script: >-
+        set -o errexit
+        python -m pip install --upgrade pip
+        docker pull tonistiigi/binfmt:latest
+        docker run --rm --privileged tonistiigi/binfmt:latest --install arm64
+        pip install cibuildwheel==2.8.0
+  - task: Bash@3
+    displayName: Build wheels
+    inputs:
+      targetType: inline
+      script: cibuildwheel --output-dir wheelhouse .
+  - task: PublishBuildArtifacts@1
+    displayName: Publish Artifact
+    inputs:
+      PathtoPublish: wheelhouse
+      ArtifactName: wheelhouse
+- job: Job_2
+  displayName: cibuildwheel(macos)
+  dependsOn: Job_5
+  pool:
+    vmImage: macOS-15
   steps:
   - checkout: self
     clean: true
@@ -56,9 +125,7 @@ jobs:
       targetType: inline
       script: >
         set -o errexit
-
         python3 -m pip install --upgrade pip
-
         python3 -m pip install cibuildwheel==2.8.0
   - task: Bash@3
     displayName: Build wheels
@@ -72,9 +139,10 @@ jobs:
       PathtoPublish: wheelhouse
       ArtifactName: wheelhouse
 - job: Job_3
-  displayName: windows
+  displayName: cibuildwheel(windows)
+  dependsOn: Job_5
   pool:
-    vmImage: windows-latest
+    vmImage: windows-2022
   steps:
   - checkout: self
     clean: true
@@ -88,9 +156,7 @@ jobs:
       targetType: inline
       script: >
         set -o errexit
-
         python -m pip install --upgrade pip
-
         pip install cibuildwheel==2.8.0
   - task: Bash@3
     displayName: Build wheels
@@ -108,8 +174,9 @@ jobs:
   - Job_1
   - Job_2
   - Job_3
+  - Job_6
   pool:
-    vmImage: ubuntu-latest
+    vmImage: ubuntu-2204
   steps:
   - checkout: self
     clean: true
@@ -127,34 +194,28 @@ jobs:
     inputs:
       targetType: inline
       script: >
-        python -m pip install -U twine build
-  - task: Bash@3
-    displayName: Build source package
-    inputs:
-      targetType: inline
-      script: >
-        python -m build --sdist
-  - task: TwineAuthenticate@1
-    displayName: Twine Authenticate (pypi)
-    inputs:
-      pythonUploadServiceConnection: 899a9551-6c03-4502-a494-b5c6bb1a964a
-    condition: startsWith(variables['build.sourceBranch'], 'refs/tags/v')
-  - task: Bash@3
-    displayName: Upload to Python Package Index
-    inputs:
-      targetType: inline
-      script: >+
-        python -m twine upload  --repository pypi --config-file $(PYPIRC_PATH) wheelhouse/wheelhouse/*.whl dist/*.tar.gz
-    condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/tags/v'))
+        python -m pip install twine
   - task: TwineAuthenticate@1
     displayName: Twine Authenticate (testpyoi)
+    condition: and(not(startsWith(variables['build.sourceBranch'], 'refs/tags/v')), startsWith(variables['build.sourceBranch'], 'refs/heads/releases/'))
     inputs:
       pythonUploadServiceConnection: cbfae95a-b677-4758-896a-7086730240dd
-    condition: and(not(startsWith(variables['build.sourceBranch'], 'refs/tags/v')), startsWith(variables['build.sourceBranch'], 'refs/heads/releases/'))
   - task: Bash@3
     displayName: Upload to Python Package Index(test)
+    condition: and(succeeded(), not(startsWith(variables['build.sourceBranch'], 'refs/tags/v')), startsWith(variables['build.sourceBranch'], 'refs/heads/releases/'))
     inputs:
       targetType: inline
       script: >+
-        python -m twine upload  --repository testpypi --config-file $(PYPIRC_PATH) wheelhouse/wheelhouse/*.whl
-    condition: and(succeeded(), not(startsWith(variables['build.sourceBranch'], 'refs/tags/v')), startsWith(variables['build.sourceBranch'], 'refs/heads/releases/'))
+        python -m twine upload  --repository testpypi --config-file $(PYPIRC_PATH) wheelhouse/wheelhouse/*
+  - task: TwineAuthenticate@1
+    displayName: Twine Authenticate (pypi)
+    condition: startsWith(variables['build.sourceBranch'], 'refs/tags/v')
+    inputs:
+      pythonUploadServiceConnection: 899a9551-6c03-4502-a494-b5c6bb1a964a
+  - task: Bash@3
+    displayName: Upload to Python Package Index
+    condition: and(succeeded(), startsWith(variables['build.sourceBranch'], 'refs/tags/v'))
+    inputs:
+      targetType: inline
+      script: >+
+        python -m twine upload  --repository pypi --config-file $(PYPIRC_PATH) wheelhouse/wheelhouse/*

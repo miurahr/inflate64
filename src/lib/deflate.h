@@ -8,10 +8,6 @@
 
 #include "util.h"
 
-#ifndef local
-#  define local static
-#endif
-
 /* ===========================================================================
  * Internal compression state.
  */
@@ -35,9 +31,6 @@
 
 #define HEAP_SIZE (2*L_CODES+1)
 /* maximum heap size */
-
-#define MAX_BITS 15
-/* All codes must not exceed MAX_BITS bits */
 
 #define Buf_size 16
 /* size of bit buffer in bi_buf */

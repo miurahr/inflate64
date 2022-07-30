@@ -78,7 +78,7 @@ local const uch bl_order[BL_CODES]
  * Local data. These are initialized only once.
  */
 
-#define DIST_CODE_LEN  512 /* see definition of array dist_code below */
+#define DIST_CODE_LEN  768 /* see definition of array dist_code below */
 
 local int base_length[LENGTH_CODES];
 /* First normalized length for each code (0 = MIN_MATCH) */

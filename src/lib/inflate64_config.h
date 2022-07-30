@@ -19,6 +19,9 @@
 #define MEM_LEVEL64   9  /* maximum compression */
 #define WBITS64   16     /* 64K LZ77 window for deflate64 */
 
+#define MAX_BITS 15
+/* All codes must not exceed MAX_BITS bits */
+
 #ifdef __STDC__
 #ifndef STDC
 #define STDC

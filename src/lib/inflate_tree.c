@@ -5,8 +5,6 @@
 #include "util.h"
 #include "inflate_tree.h"
 
-#define MAXBITS 16
-
 /*
    Build a set of tables to decode the provided canonical Huffman code.
    The code lengths are lens[0..codes-1].  The result starts at *table,
@@ -45,8 +43,8 @@ unsigned short FAR *work;
     const unsigned short FAR *base;     /* base value table to use */
     const unsigned short FAR *extra;    /* extra bits table to use */
     int end;                    /* use base and extra for symbol > end */
-    unsigned short count[MAXBITS+1];    /* number of codes of each length */
-    unsigned short offs[MAXBITS+1];     /* offsets in table for each length */
+    unsigned short count[MAX_BITS + 1];    /* number of codes of each length */
+    unsigned short offs[MAX_BITS + 1];     /* offsets in table for each length */
     static const unsigned short lbase[31] = { /* Length codes 257..285 base */
         3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17,
         19, 23, 27, 31, 35, 43, 51, 59, 67, 83, 99, 115,
@@ -78,8 +76,8 @@ unsigned short FAR *work;
        are incremented backwards.
 
        This routine assumes, but does not check, that all of the entries in
-       lens[] are in the range 0..MAXBITS.  The caller must assure this.
-       1..MAXBITS is interpreted as that code length.  zero means that that
+       lens[] are in the range 0..MAX_BITS.  The caller must assure this.
+       1..MAX_BITS is interpreted as that code length.  zero means that that
        symbol does not occur in this code.
 
        The codes are sorted by computing a count of codes for each length,
@@ -95,25 +93,25 @@ unsigned short FAR *work;
        decoding tables.
      */
 
-    /* accumulate lengths for codes (assumes lens[] all in 0..MAXBITS) */
-    for (len = 0; len <= MAXBITS; len++)
+    /* accumulate lengths for codes (assumes lens[] all in 0..MAX_BITS) */
+    for (len = 0; len <= MAX_BITS; len++)
         count[len] = 0;
     for (sym = 0; sym < codes; sym++)
         count[lens[sym]]++;
 
     /* bound code lengths, force root to be within code lengths */
     root = *bits;
-    for (max = MAXBITS; max >= 1; max--)
+    for (max = MAX_BITS; max >= 1; max--)
         if (count[max] != 0) break;
     if (root > max) root = max;
     if (max == 0) return -1;            /* no codes! */
-    for (min = 1; min <= MAXBITS; min++)
+    for (min = 1; min <= MAX_BITS; min++)
         if (count[min] != 0) break;
     if (root < min) root = min;
 
     /* check for an over-subscribed or incomplete set of lengths */
     left = 1;
-    for (len = 1; len <= MAXBITS; len++) {
+    for (len = 1; len <= MAX_BITS; len++) {
         left <<= 1;
         left -= count[len];
         if (left < 0) return -1;        /* over-subscribed */
@@ -123,7 +121,7 @@ unsigned short FAR *work;
 
     /* generate offsets into symbol table for each length for sorting */
     offs[1] = 0;
-    for (len = 1; len < MAXBITS; len++)
+    for (len = 1; len < MAX_BITS; len++)
         offs[len + 1] = offs[len] + count[len];
 
     /* sort symbols by length, by symbol order within each length */

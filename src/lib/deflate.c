@@ -87,7 +87,7 @@ local  void check_match OF((deflate_state *s, IPos start, IPos match, int length
 #endif
 /* Matches of length 3 are discarded if their distance exceeds TOO_FAR */
 
-/* Note: the deflate() code requires max_lazy >= MIN_MATCH and max_chain >= 4
+/* Note: deflate() code requires max_lazy >= MIN_MATCH and max_chain >= 4
  * For deflate_fast() (levels <= 3) good is ignored and lazy has a different
  * meaning.
  */
@@ -529,19 +529,9 @@ local uInt longest_match(s, cur_match)
      */
     Posf *prev = s->prev;
     uInt wmask = s->w_mask;
-
-#ifdef UNALIGNED_OK
-    /* Compare two bytes at a time. Note: this is not always beneficial.
-     * Try with and without -DUNALIGNED_OK to check.
-     */
-    register Byte FAR *strend = s->window + s->strstart + MAX_MATCH - 1;
-    register unsigned short scan_start = *(ush FAR*)scan;
-    register unsigned short scan_end   = *(ush FAR*)(scan+best_len-1);
-#else
     register Byte FAR *strend = s->window + s->strstart + MAX_MATCH;
     register Byte scan_end1  = scan[best_len-1];
     register Byte scan_end   = scan[best_len];
-#endif
 
     /* The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
      * It is easy to get rid of this optimization if necessary.
@@ -573,41 +563,6 @@ local uInt longest_match(s, cur_match)
          * However the length of the match is limited to the lookahead, so
          * the output of deflate is not affected by the uninitialized values.
          */
-#if (defined(UNALIGNED_OK) && MAX_MATCH == 258)
-        /* This code assumes sizeof(unsigned short) == 2. Do not use
-         * UNALIGNED_OK if your compiler uses a different size.
-         */
-        if (*(ush FAR*)(match+best_len-1) != scan_end ||
-            *(ush FAR*)match != scan_start) continue;
-
-        /* It is not necessary to compare scan[2] and match[2] since they are
-         * always equal when the other bytes match, given that the hash keys
-         * are equal and that HASH_BITS >= 8. Compare 2 bytes at a time at
-         * strstart+3, +5, ... up to strstart+257. We check for insufficient
-         * lookahead only every 4th comparison; the 128th check will be made
-         * at strstart+257. If MAX_MATCH-2 is not a multiple of 8, it is
-         * necessary to put more guard bytes at the end of the window, or
-         * to check more often for insufficient lookahead.
-         */
-        Assert(scan[2] == match[2], "scan[2]?");
-        scan++, match++;
-        do {
-        } while (*(ush FAR*)(scan+=2) == *(ush FAR*)(match+=2) &&
-                 *(ush FAR*)(scan+=2) == *(ush FAR*)(match+=2) &&
-                 *(ush FAR*)(scan+=2) == *(ush FAR*)(match+=2) &&
-                 *(ush FAR*)(scan+=2) == *(ush FAR*)(match+=2) &&
-                 scan < strend);
-        /* The funny "do {}" generates better code on most compilers */
-
-        /* Here, scan <= window+strstart+257 */
-        Assert(scan <= s->window+(unsigned)(s->window_size-1), "wild scan");
-        if (*scan == *match) scan++;
-
-        len = (MAX_MATCH - 1) - (int)(strend-scan);
-        scan = strend - (MAX_MATCH-1);
-
-#else /* UNALIGNED_OK */
-
         if (match[best_len]   != scan_end  ||
             match[best_len-1] != scan_end1 ||
             *match            != *scan     ||
@@ -637,20 +592,14 @@ local uInt longest_match(s, cur_match)
         len = MAX_MATCH - (int)(strend - scan);
         scan = strend - MAX_MATCH;
 
-#endif /* UNALIGNED_OK */
-
         if (len > best_len) {
             s->match_start = cur_match;
             best_len = len;
             if (len >= nice_match) {
                 break;
             }
-#ifdef UNALIGNED_OK
-            scan_end = *(ush FAR*)(scan+best_len-1);
-#else
             scan_end1 = scan[best_len - 1];
             scan_end = scan[best_len];
-#endif
         }
     } while ((cur_match = prev[cur_match & wmask]) > limit
              && --chain_length != 0);

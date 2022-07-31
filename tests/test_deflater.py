@@ -5,7 +5,6 @@ import zipfile
 import pytest
 
 import inflate64
-from inflate64 import dev
 
 testdata_path = pathlib.Path(os.path.dirname(__file__)).joinpath("data")
 srcdata = testdata_path.joinpath("src.zip")
@@ -37,7 +36,7 @@ def test_compress_n(tmp_path, fname):
     with zipfile.ZipFile(srcdata) as f:
         data = f.read(fname)
     expected_len = len(data)
-    compressor = dev.Deflater()
+    compressor = inflate64.Deflater()
     compressed = compressor.deflate(data)
     compressed += compressor.flush()
     with tmp_path.joinpath(fname).open("wb") as f:

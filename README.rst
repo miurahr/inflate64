@@ -7,7 +7,8 @@ inflate64
 .. image:: https://badge.fury.io/py/inflate64.svg
     :target: https://badge.fury.io/py/inflate64
 
-The inflate64 is a python package to provide an ``Inflater`` class to decompress with Enhanced Deflate algorithm.
+The inflate64 is a python package to provide ``Deflater`` and ``Inflater`` class to compress and
+decompress with Enhanced Deflate compression algorithm.
 
 The project status is in ``Alpha`` stage.
 

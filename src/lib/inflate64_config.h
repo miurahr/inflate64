@@ -5,32 +5,30 @@
 #ifndef DEFLATE9_INFLATE64_CONFIG_H
 #define DEFLATE9_INFLATE64_CONFIG_H
 
-#  define z_longlong long long
-#  if defined(NO_SIZE_T)
-typedef unsigned NO_SIZE_T z_size_t;
-#  elif defined(STDC)
-#    include <stddef.h>
-     typedef size_t z_size_t;
-#  else
-typedef unsigned long z_size_t;
-#  endif
-#  undef z_longlong
+/* common constants */
 
-/* Maximum value for memLevel in deflateInit2 */
-#ifndef MAX_MEM_LEVEL
-#  ifdef MAXSEG_64K
-#    define MAX_MEM_LEVEL 8
-#  else
-#    define MAX_MEM_LEVEL 9
-#  endif
+#define STORED_BLOCK 0
+#define STATIC_TREES 1
+#define DYN_TREES    2
+/* The three kinds of block type */
+
+#define MIN_MATCH  3
+#define MAX_MATCH  65538
+/* The minimum and maximum match lengths */
+
+#define MEM_LEVEL64   9  /* maximum compression */
+#define WBITS64   16     /* 64K LZ77 window for deflate64 */
+
+#define MAX_BITS 15
+/* All codes must not exceed MAX_BITS bits */
+
+#ifdef __STDC__
+#ifndef STDC
+#define STDC
+#endif
 #endif
 
-/* Maximum value for windowBits in deflateInit2 and inflateInit2. */
-#ifndef MAX_WBITS
-#  define MAX_WBITS   16 /* 64K LZ77 window */
-#endif
-
-                        /* Type declarations */
+/* Type declarations */
 
 #ifndef OF /* function prototypes */
 #  ifdef STDC
@@ -59,16 +57,15 @@ typedef unsigned long z_size_t;
 #endif
 #define z_const const
 
+typedef unsigned char  uch;
+typedef unsigned short ush;
+typedef unsigned long  ulg;
+
 #if !defined(__MACTYPES__)
 typedef unsigned char  Byte;  /* 8 bits */
 #endif
 typedef unsigned int   uInt;  /* 16 bits or more */
 typedef unsigned long  uLong; /* 32 bits or more */
-typedef Byte  FAR Bytef;
-typedef char  FAR charf;
-typedef int   FAR intf;
-typedef uInt  FAR uIntf;
-typedef uLong FAR uLongf;
 
 #ifdef STDC
    typedef void const *voidpc;
@@ -103,11 +100,11 @@ typedef void   (*free_func)  OF((voidpf opaque, voidpf address));
 struct internal_state;
 
 typedef struct z_stream_s {
-    z_const Bytef *next_in;     /* next input byte */
+    z_const Byte FAR *next_in;     /* next input byte */
     uInt     avail_in;  /* number of bytes available at next_in */
     uLong    total_in;  /* total number of input bytes read so far */
 
-    Bytef    *next_out; /* next output byte will go here */
+    Byte FAR    *next_out; /* next output byte will go here */
     uInt     avail_out; /* remaining free space at next_out */
     uLong    total_out; /* total number of bytes output so far */
 
@@ -169,5 +166,26 @@ typedef z_stream FAR *z_streamp;
 #define Z_TEXT     1
 #define Z_UNKNOWN  2
 /* Possible values of the data_type field for deflate() */
+
+#ifdef HAVE_HIDDEN
+#  define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+#else
+#  define ZLIB_INTERNAL
+#endif
+
+#ifndef local
+#  define local static
+#endif
+/* since "static" is used to mean two completely different things in C, we
+   define "local" for the non-static meaning of "static", for readability
+   (compile with -Dlocal if your debugger can't find static symbols) */
+
+#if defined(STDC) && !defined(Z_SOLO)
+#  if !defined(_MSC_VER)
+#    include <stddef.h>
+#  endif
+#  include <string.h>
+#  include <stdlib.h>
+#endif
 
 #endif //DEFLATE9_INFLATE64_CONFIG_H

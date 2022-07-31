@@ -36,7 +36,7 @@ srcdata = testdata_path.joinpath("src.zip")
         ("test-file.20", 39588, 3355),
     ],
 )
-def test_decompress(tmp_path, fname, offset, length):
+def test_decompress(fname, offset, length):
     with testdata.open("rb") as f:
         _ = f.seek(offset, os.SEEK_SET)
         data = f.read(length)

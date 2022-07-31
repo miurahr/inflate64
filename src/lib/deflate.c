@@ -50,7 +50,6 @@
 /* @(#) $Id$ */
 
 #include "inflate64.h"
-#include "util.h"
 #include "deflate.h"
 
 /* ===========================================================================
@@ -69,7 +68,7 @@ local void fill_window    OF((deflate_state *s));
 local block_state deflate9_  OF((deflate_state *s, int flush));
 local void lm_init        OF((deflate_state *s));
 local void flush_pending  OF((z_streamp strm));
-local unsigned read_buf   OF((z_streamp strm, Bytef *buf, unsigned size));
+local unsigned read_buf   OF((z_streamp strm, Byte FAR *buf, unsigned size));
 local uInt longest_match  OF((deflate_state *s, IPos cur_match));
 
 #ifdef ZLIB_DEBUG
@@ -88,7 +87,7 @@ local  void check_match OF((deflate_state *s, IPos start, IPos match, int length
 #endif
 /* Matches of length 3 are discarded if their distance exceeds TOO_FAR */
 
-/* Note: the deflate() code requires max_lazy >= MIN_MATCH and max_chain >= 4
+/* Note: deflate() code requires max_lazy >= MIN_MATCH and max_chain >= 4
  * For deflate_fast() (levels <= 3) good is ignored and lazy has a different
  * meaning.
  */
@@ -125,7 +124,7 @@ local  void check_match OF((deflate_state *s, IPos start, IPos match, int length
 #define CLEAR_HASH(s) \
     do { \
         s->head[s->hash_size-1] = NIL; \
-        zmemzero((Bytef *)s->head, \
+        zmemzero((Byte FAR *)s->head, \
                  (unsigned)(s->hash_size-1)*sizeof(*s->head)); \
     } while (0)
 
@@ -189,7 +188,7 @@ int ZEXPORT deflate9Init2(strm)
     s->hash_mask = s->hash_size - 1;
     s->hash_shift =  ((s->hash_bits+MIN_MATCH-1)/MIN_MATCH);
 
-    s->window = (Bytef *) ZALLOC(strm, s->w_size, 2*sizeof(Byte));
+    s->window = (Byte FAR *) ZALLOC(strm, s->w_size, 2*sizeof(Byte));
     s->prev   = (Posf *)  ZALLOC(strm, s->w_size, sizeof(Pos));
     s->head   = (Posf *)  ZALLOC(strm, s->hash_size, sizeof(Pos));
 
@@ -197,57 +196,18 @@ int ZEXPORT deflate9Init2(strm)
 
     s->lit_bufsize = 1 << (s->hash_bits - 1); /* 16K elements by default */
 
-    /* We overlay pending_buf and sym_buf. This works since the average size
-     * for length/distance pairs over any compressed block is assured to be 31
-     * bits or less.
-     *
-     * Analysis: The longest fixed codes are a length code of 8 bits plus 5
-     * extra bits, for lengths 131 to 257. The longest fixed distance codes are
-     * 5 bits plus 13 extra bits, for distances 16385 to 32768. The longest
-     * possible fixed-codes length/distance pair is then 31 bits total.
-     *
-     * sym_buf starts one-fourth of the way into pending_buf. So there are
-     * three bytes in sym_buf for every four bytes in pending_buf. Each symbol
-     * in sym_buf is three bytes -- two for the distance and one for the
-     * literal/length. As each symbol is consumed, the pointer to the next
-     * sym_buf value to read moves forward three bytes. From that symbol, up to
-     * 31 bits are written to pending_buf. The closest the written pending_buf
-     * bits gets to the next sym_buf symbol to read is just before the last
-     * code is written. At that time, 31*(n-2) bits have been written, just
-     * after 24*(n-2) bits have been consumed from sym_buf. sym_buf starts at
-     * 8*n bits into pending_buf. (Note that the symbol buffer fills when n-1
-     * symbols are written.) The closest the writing gets to what is unread is
-     * then n+14 bits. Here n is lit_bufsize, which is 16384 by default, and
-     * can range from 128 to 32768.
-     *
-     * Therefore, at a minimum, there are 142 bits of space between what is
-     * written and what is read in the overlain buffers, so the symbols cannot
-     * be overwritten by the compressed data. That space is actually 139 bits,
-     * due to the three-bit fixed-code block header.
-     *
-     * That covers the case where either Z_FIXED is specified, forcing fixed
-     * codes, or when the use of fixed codes is chosen, because that choice
-     * results in a smaller compressed block than dynamic codes. That latter
-     * condition then assures that the above analysis also covers all dynamic
-     * blocks. A dynamic-code block will only be chosen to be emitted if it has
-     * fewer bits than a fixed-code block would for the same set of symbols.
-     * Therefore its average symbol length is assured to be less than 31. So
-     * the compressed data for a dynamic block also cannot overwrite the
-     * symbols from which it is being constructed.
-     */
-
     s->pending_buf = (unsigned char FAR *) ZALLOC(strm, s->lit_bufsize, 4);
     s->pending_buf_size = (unsigned long)s->lit_bufsize * 4;
+    s->sym_buf = (unsigned char FAR *) ZALLOC(strm, s->lit_bufsize, 4);
+    s->sym_end = s->lit_bufsize * 4;
 
     if (s->window == Z_NULL || s->prev == Z_NULL || s->head == Z_NULL ||
-        s->pending_buf == Z_NULL) {
+        s->pending_buf == Z_NULL || s->sym_buf == Z_NULL) {
         s->status = FINISH_STATE;
         strm->msg = ERR_MSG(Z_MEM_ERROR);
         deflate9End (strm);
         return Z_MEM_ERROR;
     }
-    s->sym_buf = s->pending_buf + s->lit_bufsize;
-    s->sym_end = (s->lit_bufsize - 1) * 3;
     return deflate9Reset(strm);
 }
 
@@ -439,6 +399,7 @@ int ZEXPORT deflate9End (z_streamp strm) {
 
     /* Deallocate in reverse order of allocations: */
     TRY_FREE(strm, strm->state->pending_buf);
+    TRY_FREE(strm, strm->state->sym_buf);
     TRY_FREE(strm, strm->state->head);
     TRY_FREE(strm, strm->state->prev);
     TRY_FREE(strm, strm->state->window);
@@ -458,7 +419,7 @@ int ZEXPORT deflate9End (z_streamp strm) {
  */
 local unsigned read_buf(strm, buf, size)
     z_streamp strm;
-    Bytef *buf;
+    Byte FAR *buf;
     unsigned size;
 {
     unsigned len = strm->avail_in;
@@ -488,7 +449,7 @@ local void lm_init (s)
     /* Set the default configuration parameters:
      */
     s->max_lazy_match   = 258;
-    s->good_match       = 64;  // 64 instead of 32
+    s->good_match       = 32;
     s->nice_match       = 258;
     s->max_chain_length = 4096;
 
@@ -518,8 +479,8 @@ local uInt longest_match(s, cur_match)
     IPos cur_match;                             /* current match */
 {
     unsigned chain_length = s->max_chain_length;/* max hash chain length */
-    register Bytef *scan = s->window + s->strstart; /* current string */
-    register Bytef *match;                      /* matched string */
+    register Byte FAR *scan = s->window + s->strstart; /* current string */
+    register Byte FAR *match;                      /* matched string */
     register int len;                           /* length of current match */
     int best_len = (int)s->prev_length;         /* best match length so far */
     int nice_match = s->nice_match;             /* stop if match long enough */
@@ -530,19 +491,9 @@ local uInt longest_match(s, cur_match)
      */
     Posf *prev = s->prev;
     uInt wmask = s->w_mask;
-
-#ifdef UNALIGNED_OK
-    /* Compare two bytes at a time. Note: this is not always beneficial.
-     * Try with and without -DUNALIGNED_OK to check.
-     */
-    register Bytef *strend = s->window + s->strstart + MAX_MATCH - 1;
-    register unsigned short scan_start = *(ushf*)scan;
-    register unsigned short scan_end   = *(ushf*)(scan+best_len-1);
-#else
-    register Bytef *strend = s->window + s->strstart + MAX_MATCH;
+    register Byte FAR *strend = s->window + s->strstart + MAX_MATCH;
     register Byte scan_end1  = scan[best_len-1];
     register Byte scan_end   = scan[best_len];
-#endif
 
     /* The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
      * It is easy to get rid of this optimization if necessary.
@@ -574,41 +525,6 @@ local uInt longest_match(s, cur_match)
          * However the length of the match is limited to the lookahead, so
          * the output of deflate is not affected by the uninitialized values.
          */
-#if (defined(UNALIGNED_OK) && MAX_MATCH == 258)
-        /* This code assumes sizeof(unsigned short) == 2. Do not use
-         * UNALIGNED_OK if your compiler uses a different size.
-         */
-        if (*(ushf*)(match+best_len-1) != scan_end ||
-            *(ushf*)match != scan_start) continue;
-
-        /* It is not necessary to compare scan[2] and match[2] since they are
-         * always equal when the other bytes match, given that the hash keys
-         * are equal and that HASH_BITS >= 8. Compare 2 bytes at a time at
-         * strstart+3, +5, ... up to strstart+257. We check for insufficient
-         * lookahead only every 4th comparison; the 128th check will be made
-         * at strstart+257. If MAX_MATCH-2 is not a multiple of 8, it is
-         * necessary to put more guard bytes at the end of the window, or
-         * to check more often for insufficient lookahead.
-         */
-        Assert(scan[2] == match[2], "scan[2]?");
-        scan++, match++;
-        do {
-        } while (*(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 *(ushf*)(scan+=2) == *(ushf*)(match+=2) &&
-                 scan < strend);
-        /* The funny "do {}" generates better code on most compilers */
-
-        /* Here, scan <= window+strstart+257 */
-        Assert(scan <= s->window+(unsigned)(s->window_size-1), "wild scan");
-        if (*scan == *match) scan++;
-
-        len = (MAX_MATCH - 1) - (int)(strend-scan);
-        scan = strend - (MAX_MATCH-1);
-
-#else /* UNALIGNED_OK */
-
         if (match[best_len]   != scan_end  ||
             match[best_len-1] != scan_end1 ||
             *match            != *scan     ||
@@ -638,20 +554,14 @@ local uInt longest_match(s, cur_match)
         len = MAX_MATCH - (int)(strend - scan);
         scan = strend - MAX_MATCH;
 
-#endif /* UNALIGNED_OK */
-
         if (len > best_len) {
             s->match_start = cur_match;
             best_len = len;
             if (len >= nice_match) {
                 break;
             }
-#ifdef UNALIGNED_OK
-            scan_end = *(ushf*)(scan+best_len-1);
-#else
             scan_end1 = scan[best_len - 1];
             scan_end = scan[best_len];
-#endif
         }
     } while ((cur_match = prev[cur_match & wmask]) > limit
              && --chain_length != 0);
@@ -833,13 +743,13 @@ local void fill_window(s)
  */
 #define FLUSH_BLOCK_ONLY(s, last) { \
    _tr_flush_block(s, (s->block_start >= 0L ? \
-                   (charf *)&s->window[(unsigned)s->block_start] : \
-                   (charf *)Z_NULL), \
+                   (char FAR *)&s->window[(unsigned)s->block_start] : \
+                   (char FAR *)Z_NULL), \
                 (unsigned long)((long)s->strstart - s->block_start), \
                 (last)); \
    s->block_start = s->strstart; \
    flush_pending(s->strm); \
-   Tracev((stderr,"[FLUSH]")); \
+   Tracev((stderr,"[FLUSH]\n")); \
 }
 
 /* ===========================================================================
@@ -900,8 +810,7 @@ local block_state deflate9_(s, flush)
 
             check_match(s, s->strstart-1, s->prev_match, s->prev_length);
 
-            _tr_tally_dist(s, s->strstart -1 - s->prev_match,
-                           s->prev_length - MIN_MATCH, bflush);
+            bflush = _tr_tally(s, s->strstart -1 - s->prev_match, s->prev_length - MIN_MATCH);
 
             /* Insert in hash table all strings up to the end of the match.
              * strstart-1 and strstart are already inserted. If there is not
@@ -932,7 +841,7 @@ local block_state deflate9_(s, flush)
              * is longer, truncate the previous match to a single literal.
              */
             Tracevv((stderr,"%c", s->window[s->strstart-1]));
-            _tr_tally_lit(s, s->window[s->strstart-1], bflush);
+            bflush = _tr_tally(s, 0, s->window[s->strstart-1]);
             if (bflush) {
                 FLUSH_BLOCK_ONLY(s, 0);
             }
@@ -948,10 +857,10 @@ local block_state deflate9_(s, flush)
             s->lookahead--;
         }
     }
-    // Assert (flush != Z_NO_FLUSH, "no flush?");
+    Assert (flush != Z_NO_FLUSH, "no flush?");
     if (s->match_available) {
         Tracevv((stderr,"%c", s->window[s->strstart-1]));
-        _tr_tally_lit(s, s->window[s->strstart-1], bflush);
+        bflush = _tr_tally(s, 0, s->window[s->strstart-1]);
         s->match_available = 0;
     }
     s->insert = s->strstart < MIN_MATCH-1 ? s->strstart : MIN_MATCH-1;

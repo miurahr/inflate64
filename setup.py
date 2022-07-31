@@ -46,7 +46,7 @@ class build_ext_compiler_check(build_ext):
             elif self.compiler.compiler_type.lower() == "msvc":
                 # /GF eliminates duplicate strings
                 # /Gy does function level linking
-                more_options = ["/GF", "/Gy"]
+                more_options = ["/GF", "/Gy", "/wd4996"]
                 if WARNING_AS_ERROR:
                     more_options.append("/WX")
                 extension.extra_compile_args.extend(more_options)

@@ -32,7 +32,7 @@
    On failure, return -1 */
 static inline Py_ssize_t
 OutputBuffer_InitAndGrow(_BlocksOutputBuffer *buffer, Py_ssize_t max_length,
-                         Bytef **next_out, uint32_t *avail_out)
+                         Byte FAR **next_out, uint32_t *avail_out)
 {
     Py_ssize_t allocated;
 
@@ -46,7 +46,7 @@ OutputBuffer_InitAndGrow(_BlocksOutputBuffer *buffer, Py_ssize_t max_length,
    On failure, return -1 */
 static inline Py_ssize_t
 OutputBuffer_Grow(_BlocksOutputBuffer *buffer,
-                  Bytef **next_out, uint32_t *avail_out)
+                  Byte FAR **next_out, uint32_t *avail_out)
 {
     Py_ssize_t allocated;
 
@@ -91,7 +91,7 @@ OutputBuffer_OnError(_BlocksOutputBuffer *buffer)
                  ^ next_posi, left_bytes is 0  */
 typedef struct {
     Py_ssize_t left_bytes;
-    Bytef *next_posi;
+    Byte FAR *next_posi;
 } _Uint32Window;
 
 /* Initialize the buffer with an initial buffer size.
@@ -101,7 +101,7 @@ typedef struct {
 static inline Py_ssize_t
 OutputBuffer_WindowInitWithSize(_BlocksOutputBuffer *buffer, _Uint32Window *window,
                                 Py_ssize_t init_size,
-                                Bytef **next_out, uint32_t *avail_out)
+                                Byte FAR **next_out, uint32_t *avail_out)
 {
     Py_ssize_t allocated = _BlocksOutputBuffer_InitWithSize(
             buffer, init_size, (void**) next_out);
@@ -123,7 +123,7 @@ OutputBuffer_WindowInitWithSize(_BlocksOutputBuffer *buffer, _Uint32Window *wind
    On failure, return value < 0 */
 static inline Py_ssize_t
 OutputBuffer_WindowGrow(_BlocksOutputBuffer *buffer, _Uint32Window *window,
-                        Bytef **next_out, uint32_t *avail_out)
+                        Byte FAR **next_out, uint32_t *avail_out)
 {
     Py_ssize_t allocated;
 

@@ -488,7 +488,7 @@ local void lm_init (s)
     /* Set the default configuration parameters:
      */
     s->max_lazy_match   = 258;
-    s->good_match       = 64;  // 64 instead of 32
+    s->good_match       = 32;
     s->nice_match       = 258;
     s->max_chain_length = 4096;
 

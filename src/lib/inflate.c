@@ -772,6 +772,11 @@ int flush;
             if (left == 0) goto inf_leave;
             copy = out - left;
             if (state->offset > copy) {         /* copy from window */
+                if (state->window == NULL) {
+                    strm->msg = (char *)"try to copy from null window buffer!";
+                    state->mode = BAD;
+                    break;
+                }
                 copy = state->offset - copy;
                 if (copy > state->whave) {
                     if (state->sane) {

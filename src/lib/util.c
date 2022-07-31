@@ -21,7 +21,7 @@ z_const char * const z_errmsg[10] = {
 #ifdef ZLIB_DEBUG
 #include <stdlib.h>
 #  ifndef verbose
-#    define verbose 0
+#    define verbose (ZLIB_DEBUG)
 #  endif
 int ZLIB_INTERNAL z_verbose = verbose;
 

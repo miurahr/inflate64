@@ -839,7 +839,7 @@ local void fill_window(s)
                 (last)); \
    s->block_start = s->strstart; \
    flush_pending(s->strm); \
-   Tracev((stderr,"[FLUSH]")); \
+   Tracev((stderr,"[FLUSH]\n")); \
 }
 
 /* ===========================================================================

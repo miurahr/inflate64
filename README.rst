@@ -14,13 +14,23 @@ The project status is in ``Alpha`` stage.
 API
 ---
 
-You can use inflate64 by instantiating ``Inflater`` class and call ``inflate`` method.
+You can use inflate64 by instantiating ``Inflater`` class and call ``inflate`` method to extract compressed data.
 
 .. code-block:: python
 
   import inflate64
   decompressor = inflate64.Inflater()
   extracted = decompressor.inflate(data)
+
+
+You can also compress data by instantiating ``Deflater`` class and call ``deflate`` method.
+
+.. code-block:: python
+
+  import inflate64
+  compressor = inflate64.Deflater()
+  compressed = compressor.deflate(data)
+  compressed += compressor.flush()
 
 
 License

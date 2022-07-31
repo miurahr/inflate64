@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+Added
+-----
+* Deflater compession class(#2)
+* Docs: add technical note about enhanced deflate(#3)
+
+Changed
+-------
+* Enhanced and enabled compression test cases
+* Add internal check for window alloc
+
 v0.1.4_
 =======
 
@@ -31,8 +41,8 @@ v0.1.1_
 * Support decompression/inflation
 
 .. History links
-.. _Unreleased: https://github.com/miurahr/inflate64/compare/v0.1.4...HEAD
-.. _v0.1.4: https://github.com/miurahr/inflate64/compare/v0.1.3...v0.1.4
-.. _v0.1.3: https://github.com/miurahr/inflate64/compare/v0.1.2...v0.1.3
-.. _v0.1.2: https://github.com/miurahr/inflate64/compare/v0.1.1...v0.1.2
-.. _v0.1.1: https://github.com/miurahr/inflate64/compare/v0.1.0...v0.1.1
+.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v0.1.4...HEAD
+.. _v0.1.4: https://codeberg.org/miurahr/inflate64/compare/v0.1.3...v0.1.4
+.. _v0.1.3: https://codeberg.org/miurahr/inflate64/compare/v0.1.2...v0.1.3
+.. _v0.1.2: https://codeberg.org/miurahr/inflate64/compare/v0.1.1...v0.1.2
+.. _v0.1.1: https://codeberg.org/miurahr/inflate64/compare/v0.1.0...v0.1.1

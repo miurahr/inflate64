@@ -874,21 +874,6 @@ void ZLIB_INTERNAL _tr_flush_bits(s)
 }
 
 /* ===========================================================================
- * Send one empty static block to give enough lookahead for inflate.
- * This takes 10 bits, of which 7 may remain in the bit buffer.
- */
-void ZLIB_INTERNAL _tr_align(s)
-    deflate_state *s;
-{
-    send_bits(s, STATIC_TREES<<1, 3);
-    send_code(s, END_BLOCK, static_ltree);
-#ifdef ZLIB_DEBUG
-    s->compressed_len += 10L; /* 3 for block type, 7 for EOB */
-#endif
-    bi_flush(s);
-}
-
-/* ===========================================================================
  * Determine the best encoding for the current block: dynamic trees, static
  * trees or store, and write out the encoded block.
  */

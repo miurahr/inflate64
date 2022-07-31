@@ -3,6 +3,7 @@ inflate64
 
 .. image:: https://dev.azure.com/miurahr/CodeBerg/_apis/build/status/CodeBerg-inflate64-CI?branchName=main
    :alt: Build status
+   :target: https://dev.azure.com/miurahr/CodeBerg/_build?definitionId=18&_a=summary
 
 .. image:: https://badge.fury.io/py/inflate64.svg
     :target: https://badge.fury.io/py/inflate64

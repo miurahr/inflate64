@@ -995,6 +995,7 @@ int ZLIB_INTERNAL _tr_tally (s, dist, lc)
     s->sym_buf[s->sym_next++] = dist;
     s->sym_buf[s->sym_next++] = dist >> 8;
     s->sym_buf[s->sym_next++] = lc;
+    s->sym_buf[s->sym_next++] = lc >> 8;
     if (dist == 0) {
         /* lc is the unmatched char */
         s->dyn_ltree[lc].Freq++;
@@ -1020,8 +1021,8 @@ local void compress_block(s, ltree, dtree)
     const ct_data *ltree; /* literal tree */
     const ct_data *dtree; /* distance tree */
 {
-    unsigned dist;      /* distance of matched string */
-    int lc;             /* match length or unmatched char (if dist == 0) */
+    ush dist;      /* distance of matched string */
+    ush lc;        /* match length or unmatched char (if dist == 0) */
     unsigned sx = 0;    /* running index in sym_buf */
     unsigned code;      /* the code to send */
     int extra;          /* number of extra bits to send */
@@ -1029,7 +1030,8 @@ local void compress_block(s, ltree, dtree)
     if (s->sym_next != 0) do {
         dist = s->sym_buf[sx++] & 0xff;
         dist += (unsigned)(s->sym_buf[sx++] & 0xff) << 8;
-        lc = s->sym_buf[sx++];
+        lc = s->sym_buf[sx++] & 0xff;
+        lc += (unsigned)(s->sym_buf[sx++] & 0xff) << 8;
         if (dist == 0) {
             send_code(s, lc, ltree); /* send a literal byte */
             Tracecv(isgraph(lc), (stderr," '%c' ", lc));

@@ -196,57 +196,18 @@ int ZEXPORT deflate9Init2(strm)
 
     s->lit_bufsize = 1 << (s->hash_bits - 1); /* 16K elements by default */
 
-    /* We overlay pending_buf and sym_buf. This works since the average size
-     * for length/distance pairs over any compressed block is assured to be 31
-     * bits or less.
-     *
-     * Analysis: The longest fixed codes are a length code of 8 bits plus 5
-     * extra bits, for lengths 131 to 257. The longest fixed distance codes are
-     * 5 bits plus 13 extra bits, for distances 16385 to 32768. The longest
-     * possible fixed-codes length/distance pair is then 31 bits total.
-     *
-     * sym_buf starts one-fourth of the way into pending_buf. So there are
-     * three bytes in sym_buf for every four bytes in pending_buf. Each symbol
-     * in sym_buf is three bytes -- two for the distance and one for the
-     * literal/length. As each symbol is consumed, the pointer to the next
-     * sym_buf value to read moves forward three bytes. From that symbol, up to
-     * 31 bits are written to pending_buf. The closest the written pending_buf
-     * bits gets to the next sym_buf symbol to read is just before the last
-     * code is written. At that time, 31*(n-2) bits have been written, just
-     * after 24*(n-2) bits have been consumed from sym_buf. sym_buf starts at
-     * 8*n bits into pending_buf. (Note that the symbol buffer fills when n-1
-     * symbols are written.) The closest the writing gets to what is unread is
-     * then n+14 bits. Here n is lit_bufsize, which is 16384 by default, and
-     * can range from 128 to 32768.
-     *
-     * Therefore, at a minimum, there are 142 bits of space between what is
-     * written and what is read in the overlain buffers, so the symbols cannot
-     * be overwritten by the compressed data. That space is actually 139 bits,
-     * due to the three-bit fixed-code block header.
-     *
-     * That covers the case where either Z_FIXED is specified, forcing fixed
-     * codes, or when the use of fixed codes is chosen, because that choice
-     * results in a smaller compressed block than dynamic codes. That latter
-     * condition then assures that the above analysis also covers all dynamic
-     * blocks. A dynamic-code block will only be chosen to be emitted if it has
-     * fewer bits than a fixed-code block would for the same set of symbols.
-     * Therefore its average symbol length is assured to be less than 31. So
-     * the compressed data for a dynamic block also cannot overwrite the
-     * symbols from which it is being constructed.
-     */
-
     s->pending_buf = (unsigned char FAR *) ZALLOC(strm, s->lit_bufsize, 4);
     s->pending_buf_size = (unsigned long)s->lit_bufsize * 4;
+    s->sym_buf = (unsigned char FAR *) ZALLOC(strm, s->lit_bufsize, 4);
+    s->sym_end = s->lit_bufsize * 4;
 
     if (s->window == Z_NULL || s->prev == Z_NULL || s->head == Z_NULL ||
-        s->pending_buf == Z_NULL) {
+        s->pending_buf == Z_NULL || s->sym_buf == Z_NULL) {
         s->status = FINISH_STATE;
         strm->msg = ERR_MSG(Z_MEM_ERROR);
         deflate9End (strm);
         return Z_MEM_ERROR;
     }
-    s->sym_buf = s->pending_buf + s->lit_bufsize;
-    s->sym_end = (s->lit_bufsize - 1) * 3;
     return deflate9Reset(strm);
 }
 
@@ -438,6 +399,7 @@ int ZEXPORT deflate9End (z_streamp strm) {
 
     /* Deallocate in reverse order of allocations: */
     TRY_FREE(strm, strm->state->pending_buf);
+    TRY_FREE(strm, strm->state->sym_buf);
     TRY_FREE(strm, strm->state->head);
     TRY_FREE(strm, strm->state->prev);
     TRY_FREE(strm, strm->state->window);

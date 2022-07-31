@@ -11,19 +11,6 @@ testdata_path = pathlib.Path(os.path.dirname(__file__)).joinpath("data")
 srcdata = testdata_path.joinpath("src.zip")
 
 
-def test_compress_0(tmp_path):
-    with testdata_path.joinpath("test-file.txt").open("rb") as f:
-        data = f.read()
-    compressor = dev.Deflater()
-    compressed = compressor.deflate(data)
-    compressed += compressor.flush()
-    with tmp_path.joinpath("output.txt").open("wb") as f:
-        f.write(compressed)
-    decompressor = inflate64.Inflater()
-    extracted = decompressor.inflate(compressed)
-    assert extracted == data
-
-
 @pytest.mark.parametrize("fname",
                          ["test-file.1",
                           "test-file.2",

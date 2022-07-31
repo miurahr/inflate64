@@ -9,7 +9,6 @@ import inflate64
 testdata_path = pathlib.Path(os.path.dirname(__file__)).joinpath("data")
 srcdata = testdata_path.joinpath("src.zip")
 
-
 @pytest.mark.parametrize("fname",
                          ["test-file.1",
                           "test-file.2",
@@ -33,6 +32,11 @@ srcdata = testdata_path.joinpath("src.zip")
                           "test-file.20",
                           ])
 def test_compress_n(tmp_path, fname):
+    """
+    Compress test with various data.
+    :param tmp_path:  fixture.
+    :param fname:  target file name.
+    """
     with zipfile.ZipFile(srcdata) as f:
         data = f.read(fname)
     expected_len = len(data)
@@ -46,3 +50,24 @@ def test_compress_n(tmp_path, fname):
     result_len = len(extracted)
     assert result_len == expected_len
     assert extracted == data
+
+
+@pytest.mark.skip(reason="Known bug")
+def test_compress_largefile(tmp_path):
+    """
+    Compression test with larger size of data.
+    :param tmp_path:  fixture.
+    """
+    fname = "10000SalesRecords.csv"
+    BS = 8192
+    #
+    compressor = inflate64.Deflater()
+    with tmp_path.joinpath(fname).open(mode="wb") as target:
+        with zipfile.ZipFile(srcdata) as myzip:
+            with myzip.open(fname) as myfile:
+                data = myfile.read(BS)
+                while len(data) > 0:
+                    target.write(compressor.deflate(data))
+                    data = myfile.read(BS)
+                target.write(compressor.flush())
+

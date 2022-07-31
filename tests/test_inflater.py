@@ -1,3 +1,4 @@
+import hashlib
 import os
 import pathlib
 import zipfile
@@ -8,6 +9,7 @@ import inflate64
 
 testdata_path = pathlib.Path(os.path.dirname(__file__)).joinpath("data")
 testdata = testdata_path.joinpath("test-file.zip")
+largedata = testdata_path.joinpath("large-file.zip")
 srcdata = testdata_path.joinpath("src.zip")
 
 
@@ -37,6 +39,12 @@ srcdata = testdata_path.joinpath("src.zip")
     ],
 )
 def test_decompress(fname, offset, length):
+    """
+    Test with various size of data.
+    :param fname:  file name of test file.
+    :param offset:  data offset in target zip file.
+    :param length:  compressed size of data.
+    """
     with testdata.open("rb") as f:
         _ = f.seek(offset, os.SEEK_SET)
         data = f.read(length)
@@ -46,3 +54,29 @@ def test_decompress(fname, offset, length):
     result = decompressor.inflate(data)
     assert len(result) == len(expected)
     assert result == expected
+
+
+def test_decompress_large():
+    """
+    Test with larger file with looping inflate() method.
+    """
+    fname = "10000SalesRecords.csv"
+    offset = 51
+    remaining = 351298
+    BS = 8192
+    #
+    m = hashlib.sha256()
+    with zipfile.ZipFile(srcdata) as z:
+        m.update(z.read(fname))
+    expected = m.digest()
+    #
+    m = hashlib.sha256()
+    decompressor = inflate64.Inflater()
+    with largedata.open("rb") as f:
+        _ = f.seek(offset, os.SEEK_SET)
+        while remaining > 0:
+            length = min(BS, remaining)
+            data = f.read(length)
+            m.update(decompressor.inflate(data))
+            remaining -= len(data)
+    assert m.digest() == expected

@@ -398,8 +398,8 @@ int ZEXPORT deflate9End (z_streamp strm) {
     status = strm->state->status;
 
     /* Deallocate in reverse order of allocations: */
-    TRY_FREE(strm, strm->state->pending_buf);
     TRY_FREE(strm, strm->state->sym_buf);
+    TRY_FREE(strm, strm->state->pending_buf);
     TRY_FREE(strm, strm->state->head);
     TRY_FREE(strm, strm->state->prev);
     TRY_FREE(strm, strm->state->window);

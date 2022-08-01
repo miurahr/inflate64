@@ -240,8 +240,9 @@ local void tr_static_init()
     for (code = 0; code < LENGTH_CODES-1; code++) {
         //  base_length[29] = 0 instead of 256 and extra bit length is 16
         base_length[code] = length & 0xFF;
-        for (n = 0; n < (1<<extra_lbits[code]) && n < ((1 << 16) - 256); n++) {
+        for (n = 0; n < (1<<extra_lbits[code]); n++) {
             length_code[length++] = (uch)code;
+            if (length > MAX_MATCH -MIN_MATCH) break;
         }
     }
     Assert (length == MAX_MATCH - MIN_MATCH + 1, "tr_static_init: length != 65536");

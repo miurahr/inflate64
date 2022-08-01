@@ -1,12 +1,24 @@
 Enhanced Deflate note
 =====================
 
-Length code
------------
+Enhanced Deflate is a slightly modified variant of the Deflate procedure.
+The fundamental mechanisms remained completely unchanged, only the following features were improved.
 
-Length code 285 is different from deflate.
+Dictionary size to 64 Kbytes
+----------------------------
+
+The addressable size of the sliding dictionary is extended from 32 kbytes to 64 kbytes.
+Enhanced deflate detects matches from 65536 bytes distance and maximum 65530 bytes length.
+A definition is placed in ``inflate64_config.h``.
+
+Length code
+------------
+
+Last length code (285) will be extended by 16 extra bits.
 It represent length 258 and extension bit width is 0 in deflate.
 Otherwise it represent length 258-65536 and extension bit widths are 16 in enhanced deflate
+The code defines lengths in a range between 3 and 65.538 byte.
+The original limitation to 258 byte sequences is dropped with that.
 
 .. list-table:: Length code table
    :widths: 40, 40, 25
@@ -108,9 +120,10 @@ Otherwise it represent length 258-65536 and extension bit widths are 16 in enhan
 Distance code
 -------------
 
-Distance code table is extended to length 32.
-Enhanced deflate give code 30, 31 to have extension bit widths 14.
-That express distance from 32kB to 64kB.
+The distance codes (30 and 31) not used until now are extended to address a range of 64 kbytes.
+According to the conventional Deflate definition these codes were not used.
+14 extra bits are assigned to each of them.
+Details definition is described following.
 
 .. list-table:: Distance code table
    :widths: 40, 40, 25

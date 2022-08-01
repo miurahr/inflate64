@@ -13,7 +13,7 @@
 /* The three kinds of block type */
 
 #define MIN_MATCH  3
-#define MAX_MATCH  65538
+#define MAX_MATCH  55530
 /* The minimum and maximum match lengths */
 
 #define MEM_LEVEL64   9  /* maximum compression */

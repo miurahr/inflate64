@@ -194,7 +194,7 @@ int ZEXPORT deflate9Init2(strm)
 
     s->high_water = 0;      /* nothing written to s->window yet */
 
-    s->lit_bufsize = 1 << (s->hash_bits - 1); /* 16K elements by default */
+    s->lit_bufsize = 1 << (s->hash_bits - 1); /* 32K elements by default */
 
     s->pending_buf = (unsigned char FAR *) ZALLOC(strm, s->lit_bufsize, 4);
     s->pending_buf_size = (unsigned long)s->lit_bufsize * 4;

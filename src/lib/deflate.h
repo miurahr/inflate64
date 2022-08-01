@@ -255,9 +255,7 @@ typedef struct internal_state {
  */
 
 #define MAX_DIST(s)  ((s)->w_size-MIN_LOOKAHEAD)
-/* In order to simplify the code, particularly on 16 bit machines, match
- * distances are limited to MAX_DIST instead of WSIZE.
- */
+/* In order to simplify the code match distances are limited to MAX_DIST instead of WSIZE. */
 
 #define WIN_INIT MAX_MATCH
 /* Number of bytes after end of data in window to initialize in order to avoid

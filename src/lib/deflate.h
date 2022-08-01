@@ -277,6 +277,10 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, char FAR *buf,
  * used.
  */
 
+#define l_code(length) \
+   ((length) <= BASE_MATCH ? length_code[length] : 28)
+/* last length code is common (28) for 259-65536 */
+
 #ifndef ZLIB_DEBUG
 #if defined(GEN_TREES_H) || !defined(STDC)
   extern uch ZLIB_INTERNAL _dist_code[];

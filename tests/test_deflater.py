@@ -53,7 +53,7 @@ def test_compress_n(tmp_path, fname):
     assert extracted == data
 
 
-def test_compress_largefile(tmp_path):
+def test_compress_larger(tmp_path):
     """
     Compression test with larger size of data.
     :param tmp_path:  fixture.

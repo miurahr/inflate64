@@ -56,7 +56,7 @@ def test_decompress(fname, offset, length):
     assert result == expected
 
 
-def test_decompress_large():
+def test_decompress_larger():
     """
     Test with larger file with looping inflate() method.
     """

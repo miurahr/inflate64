@@ -9,6 +9,7 @@ import inflate64
 testdata_path = pathlib.Path(os.path.dirname(__file__)).joinpath("data")
 srcdata = testdata_path.joinpath("src.zip")
 
+
 @pytest.mark.parametrize("fname",
                          ["test-file.1",
                           "test-file.2",
@@ -52,7 +53,6 @@ def test_compress_n(tmp_path, fname):
     assert extracted == data
 
 
-@pytest.mark.skip(reason="Known bug")
 def test_compress_largefile(tmp_path):
     """
     Compression test with larger size of data.

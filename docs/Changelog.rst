@@ -7,6 +7,15 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+Fixed
+-----
+* Deflater: Fix SIGSEGV when larger files.
+
+Changed
+-------
+* Use length_code table for the range as same as original deflate
+* Add l_code(length) macro.
+
 v0.2.0_
 =======
 

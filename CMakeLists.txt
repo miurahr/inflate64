@@ -10,7 +10,7 @@ set(Python_FIND_IMPLEMENTATIONS CPython)
 #set(Python_FIND_IMPLEMENTATIONS PyPy)
 set(VENV_PATH "${CMAKE_BINARY_DIR}/venv")
 set(DEBUG_BUILD OFF CACHE BOOL "Enable debug build?")
-set(DEBUG_LEVEL "3" CACHE STRING "Debug log level?")
+set(DEBUG_LOG_LEVEL "1" CACHE STRING "Debug log level?")
 
 if (DEBUG_BUILD)
 else()
@@ -83,7 +83,7 @@ if(MSVC)
   target_compile_options(_inflate64 PRIVATE "/wd4996")
 endif()
 if(DEBUG_BUILD)
-  target_compile_definitions(_inflate64 PRIVATE -DZLIB_DEBUG=${DEBUG_LEVEL})
+  target_compile_definitions(_inflate64 PRIVATE -DZLIB_DEBUG=${DEBUG_LOG_LEVEL})
 endif()
 add_custom_target(build_ext
                   BYPRODUCTS ${PY_EXT_INLINE}

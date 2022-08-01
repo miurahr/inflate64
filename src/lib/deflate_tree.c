@@ -30,8 +30,6 @@
  */
 
 
-// #define GEN_TREES_H
-
 #include "deflate.h"
 
 #ifdef ZLIB_DEBUG
@@ -304,9 +302,6 @@ local void tr_static_init()
     }
     static_init_done = 1;
 
-#  ifdef GEN_TREES_H
-    gen_trees_header();
-#  endif
 #endif /* defined(GEN_TREES_H) || !defined(STDC) */
 }
 
@@ -322,10 +317,12 @@ local void tr_static_init()
       ((i) == (last)? "\n};\n\n" :    \
        ((i) % (width) == (width)-1 ? ",\n" : ", "))
 
-void gen_trees_header()
+void make_deflate_tree()
 {
-    FILE *header = fopen("deftree.h", "w");
+    FILE *header = fopen("deflate_tree.h", "w");
     int i;
+
+    tr_static_init();
 
     Assert (header != NULL, "Can't open trees.h");
     fprintf(header,

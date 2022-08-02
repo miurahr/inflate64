@@ -494,6 +494,7 @@ Deflater_flush(compobject *self, PyObject *args, PyObject *kwargs) {
 
     if (err == Z_STREAM_END && mode == Z_FINISH) {
         err = deflate9End(&self->zst);
+        self->eof = 1;
         if (err != Z_OK) {
             PyErr_Format(PyExc_RuntimeError, "deflater9End return an unexpected return code %d\n", err);
             goto error;
@@ -684,6 +685,14 @@ static PyMethodDef Deflater_methods[] = {
         {NULL, NULL, 0, NULL}
 };
 
+PyDoc_STRVAR(Deflater_eof__doc, "True if the end-of-stream marker has been reached.");
+
+static PyMemberDef Deflater_members[] = {
+        {"eof", T_BOOL, offsetof(compobject, eof),
+                READONLY, Deflater_eof__doc},
+        {NULL}
+};
+
 static PyMethodDef Inflater_methods[] = {
         {"inflate", (PyCFunction)Inflater_inflate,
                      METH_VARARGS|METH_KEYWORDS, Inflater_inflate_doc},
@@ -704,6 +713,7 @@ static PyType_Slot Deflater_slots[] = {
         {Py_tp_dealloc, Deflater_dealloc},
         {Py_tp_init, Deflater_init},
         {Py_tp_methods, Deflater_methods},
+        {Py_tp_members, Deflater_members},
         {Py_tp_doc, (char *)Deflater_doc},
         {0, 0}
 };

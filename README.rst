@@ -8,15 +8,22 @@ inflate64
 .. image:: https://badge.fury.io/py/inflate64.svg
     :target: https://badge.fury.io/py/inflate64
 
-The inflate64 is a python package to provide ``Deflater`` and ``Inflater`` class to compress and
+The ``inflate64`` is a python package to provide ``Deflater`` and ``Inflater`` class to compress and
 decompress with Enhanced Deflate compression algorithm.
 
 The project status is in ``Beta`` stage.
 
-API
----
+How to use
+----------
 
-You can use inflate64 by instantiating ``Inflater`` class and call ``inflate`` method to extract compressed data.
+You can install it with ``pip`` command as usual.
+
+.. code-block::
+
+  pip install inflate64
+
+
+You can extract compressed data by instantiating ``Inflater`` class and call ``inflate`` method.
 
 .. code-block:: python
 

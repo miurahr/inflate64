@@ -42,8 +42,10 @@ def test_compress_n(tmp_path, fname):
         data = f.read(fname)
     expected_len = len(data)
     compressor = inflate64.Deflater()
+    assert not compressor.eof
     compressed = compressor.deflate(data)
     compressed += compressor.flush()
+    assert compressor.eof
     with tmp_path.joinpath(fname).open("wb") as f:
         f.write(compressed)
     decompressor = inflate64.Inflater()

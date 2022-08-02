@@ -72,6 +72,7 @@ def test_decompress_larger():
     #
     m = hashlib.sha256()
     decompressor = inflate64.Inflater()
+    assert not decompressor.eof
     with largedata.open("rb") as f:
         _ = f.seek(offset, os.SEEK_SET)
         while remaining > 0:
@@ -79,4 +80,5 @@ def test_decompress_larger():
             data = f.read(length)
             m.update(decompressor.inflate(data))
             remaining -= len(data)
+    assert decompressor.eof
     assert m.digest() == expected

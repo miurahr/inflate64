@@ -19,12 +19,13 @@ endif()
 # ##################################################################################################
 #
 set(_sources
-  src/ext/_inflate64module.c
-  src/lib/deflate.c
-  src/lib/inflate.c
+    src/ext/_inflate64module.c
+    src/lib/deflate.c
+    src/lib/inflate.c
     src/lib/inflate_tree.c
     src/lib/deflate_tree.c
     src/lib/util.c
+    src/lib/static_tables.c
 )
 # ##################################################################################################
 # Configuration for python-ext
@@ -207,9 +208,11 @@ add_dependencies(pytest_runner venv.stamp build_ext)
 # ##################################################################################################
 # make table utility
 add_executable(makefixed9
-               src/lib/makefixed.c
-        src/lib/inflate.c
+               src/lib/static_tables.c
+               src/lib/inflate.c
                src/lib/inflate_tree.c
+               src/lib/deflate_tree.c
                src/lib/util.c
         )
+target_compile_definitions(makefixed9 PRIVATE -DGEN_TREES_H)
 # ##################################################################################################

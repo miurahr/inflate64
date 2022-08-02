@@ -12,7 +12,8 @@ sources = [
     "src/lib/deflate_tree.c",
     "src/lib/inflate.c",
     "src/lib/inflate_tree.c",
-    "src/lib/util.c"
+    "src/lib/util.c",
+    "src/lib/static_tables.c"
 ]
 packages = ["inflate64"]
 kwargs = {"include_dirs": ["src/lib", "src/ext"], "library_dirs": [], "libraries": [], "sources": sources, "define_macros": []}

@@ -125,10 +125,10 @@ archs = ["x86_64", "arm64"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = check, py{37,38,39,310}
+envlist = check, py{37,38,39,310,311}
 
 [testenv]
-passenv = GITHUB_* PYTEST_ADDOPTS
+passenv = PYTEST_ADDOPTS
 extras = test
 commands =
     python -m pytest -vv -s

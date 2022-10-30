@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+v0.3.1_
+=======
+
+Fixed
+-----
+* Fix import error on python 3.7.
+
 v0.3.0_
 =======
 
@@ -56,7 +63,8 @@ v0.1.1_
 * Support decompression/inflation
 
 .. History links
-.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v0.3.0...HEAD
+.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v0.3.1...HEAD
+.. _v0.3.1: https://codeberg.org/miurahr/inflate64/compare/v0.3.0...v0.3.1
 .. _v0.3.0: https://codeberg.org/miurahr/inflate64/compare/v0.2.0...v0.3.0
 .. _v0.2.0: https://codeberg.org/miurahr/inflate64/compare/v0.1.4...v0.2.0
 .. _v0.1.4: https://codeberg.org/miurahr/inflate64/compare/v0.1.3...v0.1.4

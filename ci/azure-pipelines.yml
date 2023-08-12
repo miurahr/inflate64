@@ -13,12 +13,18 @@ jobs:
   displayName: Check and build sdist
   strategy:
     matrix:
+      py37:
+        - python.version: 3.7
       py38:
         - python.version: 3.8
       py39:
         - python.version: 3.9
       py310:
         - python.version: 3.10
+      py311:
+        - python.version: 3.11
+      pypy38:
+        - python.version: pypy38
   pool:
     vmImage: ubuntu-2204
   steps:
@@ -66,7 +72,7 @@ jobs:
       script: >
         set -o errexit
         python3 -m pip install --upgrade pip
-        pip3 install cibuildwheel==2.8.0
+        pip3 install cibuildwheel==2.15.0
   - task: Bash@3
     displayName: Build wheels
     inputs:
@@ -96,7 +102,7 @@ jobs:
         python -m pip install --upgrade pip
         docker pull tonistiigi/binfmt:latest
         docker run --rm --privileged tonistiigi/binfmt:latest --install arm64
-        pip install cibuildwheel==2.8.0
+        pip install cibuildwheel==2.15.0
   - task: Bash@3
     displayName: Build wheels
     inputs:
@@ -126,7 +132,7 @@ jobs:
       script: >
         set -o errexit
         python3 -m pip install --upgrade pip
-        python3 -m pip install cibuildwheel==2.8.0
+        python3 -m pip install cibuildwheel==2.15.0
   - task: Bash@3
     displayName: Build wheels
     inputs:
@@ -157,7 +163,7 @@ jobs:
       script: >
         set -o errexit
         python -m pip install --upgrade pip
-        pip install cibuildwheel==2.8.0
+        pip install cibuildwheel==2.15.0
   - task: Bash@3
     displayName: Build wheels
     inputs:

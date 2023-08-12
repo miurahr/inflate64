@@ -1,0 +1,22 @@
+when:
+  event: pull_request
+  branch: [main, releases/*]
+
+clone:
+  git:
+    image: woodpeckerci/plugin-git
+    settings:
+      partial: false
+      depth: 1
+      lfs: false
+      tags: true
+
+steps:
+  setup:
+    image: tonistiigi/binfmt:latest
+    commands:
+      - /usr/bin/binfmt --install arm64
+  build:
+    image: python:3.10-bullseye
+    commands:
+      - pip install cibuildwheel==2.15.0

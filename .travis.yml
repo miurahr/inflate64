@@ -9,7 +9,7 @@ jobs:
       arch: arm64
 
 install:
-  - python3 -m pip install cibuildwheel==2.8.0
+  - python3 -m pip install cibuildwheel==2.15.0
 
 script:
   # build the wheels, put them into './wheelhouse'

@@ -7,9 +7,9 @@ Supported Versions
 +---------+--------------------+
 | Version | Status             |
 +=========+====================+
-| 0.3.x   | Development        |
+| 1.0.x   | Production/Stable  |
 +---------+--------------------+
-| < 0.3   | not supported      |
+| < 1.0   | not supported      |
 +---------+--------------------+
 
 Reporting a Vulnerability

@@ -11,7 +11,7 @@ inflate64
 The ``inflate64`` is a python package to provide ``Deflater`` and ``Inflater`` class to compress and
 decompress with Enhanced Deflate compression algorithm.
 
-The project status is in ``Beta`` stage.
+The project is in ``Production/Stable`` status.
 
 How to use
 ----------

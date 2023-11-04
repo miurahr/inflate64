@@ -7,6 +7,22 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+Added
+-----
+* Support python 3.12 (#9)
+
+Fixed
+-----
+* Replace deprecated PyMem_Calloc with GIL free PyMem_RawCalloc
+* Use PyMem_RawFree accordingly.
+
+Changed
+-------
+* Bump cibuildwheel@2.16.2
+* Update cibuildwheel configuration
+* CI on ci.codeberg.org
+* Minimum required Python verison to 3.8
+
 v0.3.1_
 =======
 

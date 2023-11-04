@@ -5,7 +5,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
 # TARGET PYTHON version
-set(PY_VERSION 3.10)
+set(PY_VERSION 3.12)
 set(Python_FIND_IMPLEMENTATIONS CPython)
 #set(Python_FIND_IMPLEMENTATIONS PyPy)
 set(VENV_PATH "${CMAKE_BINARY_DIR}/venv")
@@ -53,6 +53,7 @@ set(EXT_DIR ${CMAKE_BINARY_DIR})
 set(PY_EXT_DIR build/lib.${PY_PLATFORM}-${PY_VERSION}/${PY_PACKAGE})
 set(PY_EXT ${PY_EXT_DIR}/${PY_EXT_FILE}${PY_EXT_EXT})
 set(EXT ${EXT_DIR}/${PY_EXT_FILE}.${PY_EXT_EXT})
+set(PY_EXT_INLINE ${CMAKE_SOURCE_DIR}/src/${PY_PACKAGE}/${PY_EXT_FILE}${PY_EXT_EXT})
 
 # ##################################################################################################
 # bulid ext by setup.py
@@ -88,8 +89,8 @@ if(DEBUG_BUILD)
 endif()
 add_custom_target(build_ext
                   BYPRODUCTS ${PY_EXT_INLINE}
-                  COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:_inflate64>" "${PY_SRC_DIR}"
-                  DEPENDS _inflate64
+                  COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:_inflate64> "${PY_SRC_DIR}"
+                  DEPENDS _inflate64 venv.stamp
                   )
 # ##################################################################################################
 # create virtualenv
@@ -115,17 +116,19 @@ add_custom_target(
         COMMAND ${Python_EXECUTABLE} -m venv ${VENV_PATH}
         COMMAND ${PIP_COMMAND} install -r ${CMAKE_BINARY_DIR}/requirements.txt
         COMMAND ${CMAKE_COMMAND} -E touch venv.stamp)
+set(SRC_PATH "${CMAKE_SOURCE_DIR}/src")
 set(VPKG_PATH_A "${VENV_PATH}/lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages/")
 set(VPKG_PATH_B "${VENV_PATH}/Lib/site-packages/")
 set(VPKG_PATH_C "${CMAKE_BINARY_DIR}")
+
 # ##################################################################################################
 # For pytest
 file(
-  WRITE ${CMAKE_CURRENT_BINARY_DIR}/pytest_runner.cpp
-  "
+        WRITE ${CMAKE_CURRENT_BINARY_DIR}/pytest_runner.cpp
+        "
 #include <string>
 #include <filesystem>
-#include <Python.h>
+#include <unistd.h>
 int main(int argc, char **argv) {
     std::string args;
     if ( argc > 1) {
@@ -139,70 +142,28 @@ int main(int argc, char **argv) {
         }
         args.append(\"]\");
     }
+    std::filesystem::path src_path = \"${SRC_PATH}\";
     std::filesystem::path vsite_path_a = \"${VPKG_PATH_A}\";
     std::filesystem::path vsite_path_b = \"${VPKG_PATH_B}\";
     std::filesystem::path vsite_path_c = \"${VPKG_PATH_C}\";
     std::string pycode =
         \"import sys\\n\"
+        \"sys.path.append('\" + src_path.string() + \"')\\n\"
         \"sys.path.append('\" + vsite_path_a.string() + \"')\\n\"
         \"sys.path.append('\" + vsite_path_b.string() + \"')\\n\"
-        \"sys.path.append('\" + vsite_path_c.string() + \"')\\n\"
-        \"sys.path.append('src')\\n\"
         \"import pytest\\n\"
         \"pytest.main(\" + args + \")\\n\";
-    wchar_t * program_name = Py_DecodeLocale(argv[0], NULL);
-    Py_SetProgramName(program_name);
-    Py_Initialize();
-    PyRun_SimpleString(&*pycode.begin());
-    Py_Finalize();
+    execl(\"${Python_EXECUTABLE}\", \"${Python_EXECUTABLE}\", \"-c\", pycode.c_str(), (char*)0);
     return 0;
 }")
-file(
-    WRITE ${CMAKE_CURRENT_BINARY_DIR}/pypytest_runner.cpp
-     "
-#include <string>
-#include <cstring>
-#include <filesystem>
-#include <PyPy.h>
-int main(int argc, char **argv) {
-    std::string args;
-    if ( argc > 1) {
-        args.append(\"[\");
-        for (int i = 1; i < argc; i++) {
-            if (i > 2)
-                args.append(\",\");
-            args.append(\"\\\"\");
-            args.append(argv[i]);
-            args.append(\"\\\"\");
-        }
-        args.append(\"]\");
-    }
-    std::filesystem::path vsite_path_a = \"${VPKG_PATH_A}\";
-    std::filesystem::path vsite_path_b = \"${VPKG_PATH_B}\";
-    std::filesystem::path vsite_path_c = \"${VPKG_PATH_C}\";
-    std::string pycode =
-        \"import sys\\n\"
-        \"sys.path.append('\" + vsite_path_a.string() + \"')\\n\"
-        \"sys.path.append('\" + vsite_path_b.string() + \"')\\n\"
-        \"sys.path.append('\" + vsite_path_c.string() + \"')\\n\"
-        \"sys.path.append('src')\\n\"
-        \"import pytest\\n\"
-        \"pytest.main(\" + args + \")\\n\";
-    rpython_startup_code();
-    pypy_setup_home(NULL, 1);
-    char * cstr = new char [pycode.length()+1];
-    std::strcpy (cstr, pycode.c_str());
-    pypy_execute_source(cstr);
-    return 0;
-}")
+add_executable(pytest_runner ${CMAKE_CURRENT_BINARY_DIR}/pytest_runner.cpp)
 if ("${Python_INTERPRETER_ID}" STREQUAL "PyPy")
-  add_executable(pytest_runner ${CMAKE_CURRENT_BINARY_DIR}/pypytest_runner.cpp)
+  add_dependencies(pytest_runner generate_cffi)
 else()
-  add_executable(pytest_runner ${CMAKE_CURRENT_BINARY_DIR}/pytest_runner.cpp)
+  add_dependencies(pytest_runner build_ext)
 endif()
 target_include_directories(pytest_runner PRIVATE ${Python_INCLUDE_DIRS})
 target_link_libraries(pytest_runner PRIVATE ${Python_LIBRARIES})
-set(PY_EXT_INLINE ${CMAKE_SOURCE_DIR}/src/${PY_PACKAGE}/${PY_EXT_FILE}${PY_EXT_EXT})
 add_dependencies(pytest_runner venv.stamp build_ext)
 
 # ##################################################################################################
@@ -216,3 +177,8 @@ add_executable(makefixed9
         )
 target_compile_definitions(makefixed9 PRIVATE -DGEN_TREES_H)
 # ##################################################################################################
+add_custom_target(run_tox
+        COMMAND  ${CMAKE_COMMAND} -E env VIRTUAL_ENV=${VENV_PATH} ${VENV_PATH}/bin/python -m tox
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS venv.stamp
+)

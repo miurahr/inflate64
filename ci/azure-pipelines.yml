@@ -13,8 +13,6 @@ jobs:
   displayName: Check and build sdist
   strategy:
     matrix:
-      py37:
-        - python.version: 3.7
       py38:
         - python.version: 3.8
       py39:
@@ -23,8 +21,10 @@ jobs:
         - python.version: 3.10
       py311:
         - python.version: 3.11
-      pypy38:
-        - python.version: pypy38
+      py312:
+        - python.version: 3.12
+      pypy39:
+        - python.version: pypy3.9
   pool:
     vmImage: ubuntu-2204
   steps:
@@ -43,13 +43,13 @@ jobs:
         python -m tox -e py
   - task: Bash@3
     displayName: build sdist
-    condition: eq(variables['python.version'], '3.8')
+    condition: eq(variables['python.version'], '3.10')
     inputs:
       targetType: inline
       script: python -m build --sdist
   - task: PublishBuildArtifacts@1
     displayName: Publish Artifact
-    condition: eq(variables['python.version'], '3.8')
+    condition: eq(variables['python.version'], '3.10')
     inputs:
       PathtoPublish: dist
       ArtifactName: wheelhouse
@@ -72,7 +72,7 @@ jobs:
       script: >
         set -o errexit
         python3 -m pip install --upgrade pip
-        pip3 install cibuildwheel==2.15.0
+        pip3 install cibuildwheel==2.16.2
   - task: Bash@3
     displayName: Build wheels
     inputs:
@@ -102,7 +102,7 @@ jobs:
         python -m pip install --upgrade pip
         docker pull tonistiigi/binfmt:latest
         docker run --rm --privileged tonistiigi/binfmt:latest --install arm64
-        pip install cibuildwheel==2.15.0
+        pip install cibuildwheel==2.16.2
   - task: Bash@3
     displayName: Build wheels
     inputs:
@@ -132,7 +132,7 @@ jobs:
       script: >
         set -o errexit
         python3 -m pip install --upgrade pip
-        python3 -m pip install cibuildwheel==2.15.0
+        python3 -m pip install cibuildwheel==2.16.2
   - task: Bash@3
     displayName: Build wheels
     inputs:
@@ -163,7 +163,7 @@ jobs:
       script: >
         set -o errexit
         python -m pip install --upgrade pip
-        pip install cibuildwheel==2.15.0
+        pip install cibuildwheel==2.16.2
   - task: Bash@3
     displayName: Build wheels
     inputs:

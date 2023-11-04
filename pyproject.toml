@@ -125,7 +125,7 @@ archs = ["x86_64", "arm64"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = check, py{37,38,39,310,311}
+envlist = check, py{38,39,310,311,312}, pypy{38,39}
 
 [testenv]
 passenv = PYTEST_ADDOPTS
@@ -134,7 +134,7 @@ commands =
     python -m pytest -vv -s
 
 [testenv:check]
-basepython = python3.8
+basepython = python3.10
 extras = check
 ignore_errors=true
 commands =

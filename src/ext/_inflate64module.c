@@ -237,7 +237,7 @@ static const char init_twice_msg[] = "__init__ method is called twice.";
 static voidpf zlib_alloc(voidpf opaque, uInt items, uInt size) {
     // For safety, give zlib a zero-initialized memory block
     // Also, PyMem_Calloc call does an overflow-safe maximum size check
-    void* address = PyMem_Calloc(items, size);
+    void* address = PyMem_RawCalloc(items, size);
     if (address == NULL) {
         // For safety, don't assume Z_NULL is the same as NULL
         return Z_NULL;
@@ -247,7 +247,7 @@ static voidpf zlib_alloc(voidpf opaque, uInt items, uInt size) {
 }
 
 static void zlib_free(voidpf opaque, voidpf address) {
-    PyMem_Free(address);
+    PyMem_RawFree(address);
 }
 
 static void

@@ -1,6 +1,6 @@
 [project]
 name = "inflate64"
-requires-python = ">=3.7"
+requires-python = ">=3.8"
 description = "deflate64 compression/decompression library"
 readme = "README.rst"
 license = {text = "LGPL-2.1-or-later"}
@@ -102,25 +102,22 @@ norecursedirs = [".git", "_build", "tmp", ".eggs"]
 
 [tool.cibuildwheel]
 manylinux-x86_64-image = "manylinux2014"
-manylinux-i686-image = "manylinux2014"
 manylinux-aarch64-image = "manylinux2014"
 manylinux-ppc64le-image = "manylinux2014"
 manylinux-s390x-image = "manylinux2014"
 manylinux-pypy_x86_64-image = "manylinux2014"
-manylinux-pypy_i686-image = "manylinux2014"
 manylinux-pypy_aarch64-image = "manylinux2014"
 
 musllinux-x86_64-image = "musllinux_1_1"
-musllinux-i686-image = "musllinux_1_1"
 musllinux-aarch64-image = "musllinux_1_1"
 musllinux-ppc64le-image = "musllinux_1_1"
 musllinux-s390x-image = "musllinux_1_1"
 
 [tool.cibuildwheel.linux]
-archs = ["auto", "aarch64"]
+archs = ["auto64", "aarch64"]
 
 [tool.cibuildwheel.macos]
-archs = ["x86_64", "arm64"]
+archs = ["x86_64", "universal2", "arm64"]
 
 [tool.tox]
 legacy_tox_ini = """

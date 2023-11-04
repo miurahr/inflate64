@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+v1.0.0rc2_
+==========
+
+Changed
+-------
+* Update test runner for library developer (#11)
+* Project status to be stable
+* docs: update security policy
+
+
 v1.0.0rc1_
 ==========
 
@@ -82,7 +92,8 @@ v0.1.1_
 * Support decompression/inflation
 
 .. History links
-.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc1...HEAD
+.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc2...HEAD
+.. _v1.0.0rc2: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc1...v1.0.0rc2
 .. _v1.0.0rc1: https://codeberg.org/miurahr/inflate64/compare/v0.3.1...v1.0.0rc1
 .. _v0.3.1: https://codeberg.org/miurahr/inflate64/compare/v0.3.0...v0.3.1
 .. _v0.3.0: https://codeberg.org/miurahr/inflate64/compare/v0.2.0...v0.3.0

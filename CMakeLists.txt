@@ -57,16 +57,15 @@ set(PY_EXT_INLINE ${CMAKE_SOURCE_DIR}/src/${PY_PACKAGE}/${PY_EXT_FILE}${PY_EXT_E
 
 # ##################################################################################################
 # bulid ext by setup.py
-if(DEBUG_BUILD)
-  if (WIN32)
+if (WIN32)
+  if(DEBUG_BUILD)
     set(BUILD_EXT_PYTHON ${VENV_PATH}/Scripts/python_d.exe)
-    set(BUILD_EXT_OPTION)
   else()
-    set(BUILD_EXT_PYTHON ${Python_EXECUTABLE})
-    set(BUILD_EXT_OPTION)
+    set(BUILD_EXT_PYTHON ${VENV_PATH}/Scripts/python.exe)
   endif()
+  set(BUILD_EXT_OPTION)
 else()
-  set(BUILD_EXT_PYTHON ${Python_EXECUTABLE})
+  set(BUILD_EXT_PYTHON ${VENV_PATH}/bin/python)
   set(BUILD_EXT_OPTION --warning-as-error)
 endif()
 add_custom_target(

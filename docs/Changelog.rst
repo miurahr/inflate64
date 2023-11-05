@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+v1.0.0_
+=======
+
+Changed
+-------
+* Update CMakeLists.txt developer script
+
 v1.0.0rc2_
 ==========
 
@@ -92,7 +99,8 @@ v0.1.1_
 * Support decompression/inflation
 
 .. History links
-.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc2...HEAD
+.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v1.0.0...HEAD
+.. _v1.0.0: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc2...v1.0.0
 .. _v1.0.0rc2: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc1...v1.0.0rc2
 .. _v1.0.0rc1: https://codeberg.org/miurahr/inflate64/compare/v0.3.1...v1.0.0rc1
 .. _v0.3.1: https://codeberg.org/miurahr/inflate64/compare/v0.3.0...v0.3.1

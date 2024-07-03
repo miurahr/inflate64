@@ -78,10 +78,10 @@ local const uch bl_order[BL_CODES]
 
 #define DIST_CODE_LEN  768 /* see definition of array dist_code below */
 
-local int base_length[LENGTH_CODES];
+local const int base_length[LENGTH_CODES];
 /* First normalized length for each code (0 = MIN_MATCH) */
 
-uch length_code[BASE_MATCH-MIN_MATCH+1];
+const uch length_code[BASE_MATCH-MIN_MATCH+1];
 /* length code for each normalized match length (0 == MIN_MATCH) */
 
 #if defined(GEN_TREES_H) || !defined(STDC)

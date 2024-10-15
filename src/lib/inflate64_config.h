@@ -53,9 +53,6 @@
 #  define FAR
 #endif
 
-#ifndef const
-#  define const
-#endif
 #define z_const const
 
 typedef unsigned char  uch;

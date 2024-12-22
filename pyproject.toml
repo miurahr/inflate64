@@ -1,6 +1,6 @@
 [project]
 name = "inflate64"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 description = "deflate64 compression/decompression library"
 readme = "README.rst"
 license = {text = "LGPL-2.1-or-later"}
@@ -16,11 +16,11 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
@@ -37,13 +37,13 @@ docs = [
       "docutils",
 ]
 check = [
-      "mypy>=0.940",
+      "mypy>=1.10.0",
       "mypy_extensions>=0.4.1",
       "check-manifest",
       "flake8",
       "flake8-black",
       "flake8-deprecated",
-      "isort>=5.0.3",
+      "flake8-isort",
       "pygments",
       "readme-renderer",
       "twine",
@@ -120,7 +120,7 @@ archs = ["auto64", "universal2"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = check, py{38,39,310,311,312}, pypy{38,39}
+envlist = check, py{39,310,311,312,313}, pypy39
 
 [testenv]
 passenv = PYTEST_ADDOPTS
@@ -129,11 +129,10 @@ commands =
     python -m pytest -vv -s
 
 [testenv:check]
-basepython = python3.10
+basepython = python3.12
 extras = check
 ignore_errors=true
 commands =
     check-manifest {toxinidir}
     flake8 src tests
-    isort --quiet --check-only --diff src tests
 """

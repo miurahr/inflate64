@@ -288,6 +288,6 @@ void ZLIB_INTERNAL _tr_stored_block OF((deflate_state *s, char FAR *buf,
   extern const unsigned char ZLIB_INTERNAL _dist_code[];
 #endif
 #endif
-extern const uch ZLIB_INTERNAL length_code[];
+extern uch ZLIB_INTERNAL length_code[];
 
 #endif /* DEFLATE_H */

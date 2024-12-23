@@ -113,7 +113,7 @@ const uch ZLIB_INTERNAL _dist_code[DIST_CODE_LEN] = {
 31, 31, 31, 31, 31, 31, 31, 31
 };
 
-const uch ZLIB_INTERNAL length_code[BASE_MATCH-MIN_MATCH+1]= {
+uch ZLIB_INTERNAL length_code[BASE_MATCH-MIN_MATCH+1]= {
  0,  1,  2,  3,  4,  5,  6,  7,  8,  8,  9,  9, 10, 10, 11, 11, 12, 12, 12, 12,
 13, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15, 16, 16, 16, 16, 16, 16, 16, 16,
 17, 17, 17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19,
@@ -129,7 +129,7 @@ const uch ZLIB_INTERNAL length_code[BASE_MATCH-MIN_MATCH+1]= {
 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27
 };
 
-local const int base_length[LENGTH_CODES] = {
+local int base_length[LENGTH_CODES] = {
 0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56,
 64, 80, 96, 112, 128, 160, 192, 224, 0, 0
 };

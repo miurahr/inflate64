@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+v1.0.1_
+=======
+
+* Change deflate_tree: base_length[] and length_code[] not to be const to avoid
+  C2166 error on windows
+* Drop support for python 3.8 and add support for python 3.13
+
 v1.0.0_
 =======
 
@@ -99,7 +106,8 @@ v0.1.1_
 * Support decompression/inflation
 
 .. History links
-.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v1.0.0...HEAD
+.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v1.0.1...HEAD
+.. _v1.0.1: https://codeberg.org/miurahr/inflate64/compare/v1.0.0...v1.0.1
 .. _v1.0.0: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc2...v1.0.0
 .. _v1.0.0rc2: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc1...v1.0.0rc2
 .. _v1.0.0rc1: https://codeberg.org/miurahr/inflate64/compare/v0.3.1...v1.0.0rc1

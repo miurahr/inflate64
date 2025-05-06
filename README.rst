@@ -4,6 +4,9 @@ inflate64
 .. image:: https://badge.fury.io/py/inflate64.svg
     :target: https://badge.fury.io/py/inflate64
 
+.. image:: https://github.com/miurahr/inflate64/actions/workflows/run-tox-tests.yml/badge.svg?branch=main
+    :target: https://github.com/miurahr/inflate64/actions/workflows/run-tox-tests.yml
+
 .. image:: https://ci.codeberg.org/api/badges/12505/status.svg
     :target: https://ci.codeberg.org/repos/12505
 

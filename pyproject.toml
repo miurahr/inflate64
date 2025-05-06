@@ -120,7 +120,7 @@ archs = ["auto64", "universal2"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = check, py{39,310,311,312,313}, pypy39
+envlist = check, py{39,310,311,312,313}, pypy311
 
 [testenv]
 passenv = PYTEST_ADDOPTS

@@ -19,14 +19,14 @@ jobs:
             "3.11",
             "3.12",
             "3.13",
-            "pypy-3.11",
+            "pypy-3.10",
         ]
         include:
           - os: macos-latest
             python-version: "3.12"
         exclude:
           - os: windows-latest
-            python-version: 'pypy-3.11'
+            python-version: 'pypy-3.10'
     name: Test Python ${{ matrix.python-version }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4

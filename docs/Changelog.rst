@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+v1.0.2_
+=======
+
+* Published to PyPI using GItHub Actions as a trusted publisher
+* Add GitHub Actions CI/CD script
+* Drop Azure Pipelines CI/CD
+
 v1.0.1_
 =======
 
@@ -106,7 +113,8 @@ v0.1.1_
 * Support decompression/inflation
 
 .. History links
-.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v1.0.1...HEAD
+.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v1.0.2...HEAD
+.. _v1.0.2: https://codeberg.org/miurahr/inflate64/compare/v1.0.1...v1.0.2
 .. _v1.0.1: https://codeberg.org/miurahr/inflate64/compare/v1.0.0...v1.0.1
 .. _v1.0.0: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc2...v1.0.0
 .. _v1.0.0rc2: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc1...v1.0.0rc2

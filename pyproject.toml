@@ -23,7 +23,6 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
-    "Programming Language :: Python :: Implementation :: PyPy",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 keywords = ['deflate64', 'compression']
@@ -120,7 +119,7 @@ archs = ["auto64", "universal2"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = check, py{39,310,311,312,313}, pypy311
+envlist = check, py{39,310,311,312,313}
 
 [testenv]
 passenv = PYTEST_ADDOPTS

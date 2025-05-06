@@ -66,4 +66,5 @@ setup(
     package_dir={"": "src"},
     packages=packages,
     cmdclass={"build_ext": build_ext_compiler_check, "egg_info": my_egg_info},
+    python_requires=">=3.9, <3.14",
 )

@@ -156,11 +156,6 @@ int main(int argc, char **argv) {
     return 0;
 }")
 add_executable(pytest_runner ${CMAKE_CURRENT_BINARY_DIR}/pytest_runner.cpp)
-if ("${Python_INTERPRETER_ID}" STREQUAL "PyPy")
-  add_dependencies(pytest_runner generate_cffi)
-else()
-  add_dependencies(pytest_runner build_ext)
-endif()
 target_include_directories(pytest_runner PRIVATE ${Python_INCLUDE_DIRS})
 target_link_libraries(pytest_runner PRIVATE ${Python_LIBRARIES})
 add_dependencies(pytest_runner venv.stamp build_ext)

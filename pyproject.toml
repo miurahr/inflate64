@@ -33,6 +33,7 @@ test = [
 ]
 docs = [
       "sphinx>=5.0",
+      "sphinx_rtd_theme",
       "docutils",
 ]
 check = [
@@ -54,6 +55,13 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
 local_scheme = "no-local-version"
+
+[project.urls]
+Source = "https://github.com/miurahr/inflate64"
+Homepage = "https://inflate64.readthedocs.io/"
+Documentation = "https://inflate64.readthedocs.io/en/stable/"
+"Bug Tracker" = "https://github.com/miurahr/inflate64/issues"
+Changelog = "https://inflate64.readthedocs.io/en/latest/changelog.html"
 
 [tool.black]
 line-length = 125
@@ -119,7 +127,7 @@ archs = ["auto64", "universal2"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = check, py{39,310,311,312,313}
+envlist = check, py{39,310,311,312,313}, docs
 
 [testenv]
 passenv = PYTEST_ADDOPTS
@@ -134,4 +142,10 @@ ignore_errors=true
 commands =
     check-manifest {toxinidir}
     flake8 src tests
+
+[testenv:docs]
+basepython = python3.12
+extras = docs
+commands =
+    sphinx-build {posargs:-E} -b html docs build/html
 """

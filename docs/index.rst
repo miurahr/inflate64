@@ -17,7 +17,7 @@ The ``inflate64`` package uses C files from ``zlib``.
    security_policy
    technote
    license_notice
-   changelog
+   Changelog
 
 Indices and tables
 ==================

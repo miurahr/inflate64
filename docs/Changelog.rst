@@ -7,6 +7,13 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+v1.0.3_
+=======
+
+* Add readthedocs manual page.
+* Publish Python 3.13 wheels.
+* Fix GitHub Actions CI/CD script for aarch64.
+
 v1.0.2_
 =======
 
@@ -113,16 +120,17 @@ v0.1.1_
 * Support decompression/inflation
 
 .. History links
-.. _Unreleased: https://codeberg.org/miurahr/inflate64/compare/v1.0.2...HEAD
-.. _v1.0.2: https://codeberg.org/miurahr/inflate64/compare/v1.0.1...v1.0.2
-.. _v1.0.1: https://codeberg.org/miurahr/inflate64/compare/v1.0.0...v1.0.1
-.. _v1.0.0: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc2...v1.0.0
-.. _v1.0.0rc2: https://codeberg.org/miurahr/inflate64/compare/v1.0.0rc1...v1.0.0rc2
-.. _v1.0.0rc1: https://codeberg.org/miurahr/inflate64/compare/v0.3.1...v1.0.0rc1
-.. _v0.3.1: https://codeberg.org/miurahr/inflate64/compare/v0.3.0...v0.3.1
-.. _v0.3.0: https://codeberg.org/miurahr/inflate64/compare/v0.2.0...v0.3.0
-.. _v0.2.0: https://codeberg.org/miurahr/inflate64/compare/v0.1.4...v0.2.0
-.. _v0.1.4: https://codeberg.org/miurahr/inflate64/compare/v0.1.3...v0.1.4
-.. _v0.1.3: https://codeberg.org/miurahr/inflate64/compare/v0.1.2...v0.1.3
-.. _v0.1.2: https://codeberg.org/miurahr/inflate64/compare/v0.1.1...v0.1.2
-.. _v0.1.1: https://codeberg.org/miurahr/inflate64/compare/v0.1.0...v0.1.1
+.. _Unreleased: https://github.com/miurahr/inflate64/compare/v1.0.3...HEAD
+.. _v1.0.3: https://github.com/miurahr/inflate64/compare/v1.0.2...v1.0.3
+.. _v1.0.2: https://github.com/miurahr/inflate64/compare/v1.0.1...v1.0.2
+.. _v1.0.1: https://github.com/miurahr/inflate64/compare/v1.0.0...v1.0.1
+.. _v1.0.0: https://github.com/miurahr/inflate64/compare/v1.0.0rc2...v1.0.0
+.. _v1.0.0rc2: https://github.com/miurahr/inflate64/compare/v1.0.0rc1...v1.0.0rc2
+.. _v1.0.0rc1: https://github.com/miurahr/inflate64/compare/v0.3.1...v1.0.0rc1
+.. _v0.3.1: https://github.com/miurahr/inflate64/compare/v0.3.0...v0.3.1
+.. _v0.3.0: https://github.com/miurahr/inflate64/compare/v0.2.0...v0.3.0
+.. _v0.2.0: https://github.com/miurahr/inflate64/compare/v0.1.4...v0.2.0
+.. _v0.1.4: https://github.com/miurahr/inflate64/compare/v0.1.3...v0.1.4
+.. _v0.1.3: https://github.com/miurahr/inflate64/compare/v0.1.2...v0.1.3
+.. _v0.1.2: https://github.com/miurahr/inflate64/compare/v0.1.1...v0.1.2
+.. _v0.1.1: https://github.com/miurahr/inflate64/compare/v0.1.0...v0.1.1

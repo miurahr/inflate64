@@ -1,6 +1,6 @@
 [project]
 name = "inflate64"
-requires-python = ">=3.9, <3.14"
+requires-python = ">=3.9"
 description = "deflate64 compression/decompression library"
 readme = "README.rst"
 license = {text = "LGPL-2.1-or-later"}
@@ -21,6 +21,7 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",    
     "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: Implementation :: CPython",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -127,7 +128,7 @@ archs = ["auto64", "universal2"]
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = check, py{39,310,311,312,313}, docs
+envlist = check, py{39,310,311,312,313,314}, docs
 
 [testenv]
 passenv = PYTEST_ADDOPTS

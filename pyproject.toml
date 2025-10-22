@@ -1,6 +1,6 @@
 [project]
 name = "inflate64"
-requires-python = ">=3.9"
+requires-python = ">=3.9, <3.14"
 description = "deflate64 compression/decompression library"
 readme = "README.rst"
 license = {text = "LGPL-2.1-or-later"}

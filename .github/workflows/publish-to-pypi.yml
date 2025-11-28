@@ -19,6 +19,7 @@ jobs:
       CIBW_ARCHS_MACOS: "x86_64 universal2 arm64"
       # Include latest Python beta
       CIBW_PRERELEASE_PYTHONS: True
+      CIBW_SKIP: "pp*"
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v4

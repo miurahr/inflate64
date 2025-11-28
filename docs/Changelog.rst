@@ -7,6 +7,9 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+v1.0.4_
+=======
+
 * Support Python 3.14
 * Update GitHub Actions CI/CD scripts
 * Drop required python upper limit
@@ -124,7 +127,8 @@ v0.1.1_
 * Support decompression/inflation
 
 .. History links
-.. _Unreleased: https://github.com/miurahr/inflate64/compare/v1.0.3...HEAD
+.. _Unreleased: https://github.com/miurahr/inflate64/compare/v1.0.4...HEAD
+.. _v1.0.4: https://github.com/miurahr/inflate64/compare/v1.0.3...v1.0.4
 .. _v1.0.3: https://github.com/miurahr/inflate64/compare/v1.0.2...v1.0.3
 .. _v1.0.2: https://github.com/miurahr/inflate64/compare/v1.0.1...v1.0.2
 .. _v1.0.1: https://github.com/miurahr/inflate64/compare/v1.0.0...v1.0.1

@@ -7,6 +7,10 @@ All notable changes to this project will be documented in this file.
 `Unreleased`_
 =============
 
+* Support Python 3.14
+* Update GitHub Actions CI/CD scripts
+* Drop required python upper limit
+
 v1.0.3_
 =======
 

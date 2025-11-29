@@ -14,7 +14,7 @@ clone:
 
 steps:
   check:
-    image: python:${TAG}-bullseye
+    image: python:${TAG}-bookworm
     commands:
       - python -m pip install --upgrade pip
       - python -m pip install tox setuptools setuptools_scm[toml]
@@ -23,8 +23,8 @@ steps:
 
 matrix:
   TAG:
-    - 3.9
     - 3.10
     - 3.11
     - 3.12
     - 3.13
+    - 3.14

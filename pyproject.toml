@@ -105,6 +105,7 @@ norecursedirs = [".git", "_build", "tmp", ".eggs"]
 
 [tool.cibuildwheel]
 archs = "auto64"
+skip = "cp3??t-*" # Do not build free-threaded wheels (Unsupported)
 build-frontend = "build[uv]"
 
 [tool.tox]

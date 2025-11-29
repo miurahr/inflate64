@@ -1,9 +1,9 @@
 [project]
 name = "inflate64"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 description = "deflate64 compression/decompression library"
 readme = "README.rst"
-license = {text = "LGPL-2.1-or-later"}
+license = "LGPL-2.1-or-later"
 authors = [
     {name = "Hiroshi Miura", email = "miurahr@linux.com"},
 ]
@@ -16,7 +16,6 @@ classifiers = [
     "Operating System :: POSIX :: Linux",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -51,7 +50,7 @@ check = [
 ]
 
 [build-system]
-requires = ["setuptools>=45", "setuptools_scm[toml]>=6.0.1"]
+requires = ["setuptools>=80", "setuptools_scm[toml]>=9"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools_scm]
@@ -66,7 +65,7 @@ Changelog = "https://inflate64.readthedocs.io/en/latest/changelog.html"
 
 [tool.black]
 line-length = 125
-target-version = ['py39']
+target-version = ['py310']
 
 [tool.coverage.paths]
 source = ["src", "*/site-packages"]
@@ -106,23 +105,8 @@ python_files = "test*.py"
 norecursedirs = [".git", "_build", "tmp", ".eggs"]
 
 [tool.cibuildwheel]
-manylinux-x86_64-image = "manylinux_2_28"
-manylinux-aarch64-image = "manylinux_2_28"
-manylinux-ppc64le-image = "manylinux_2_28"
-manylinux-s390x-image = "manylinux_2_28"
-manylinux-pypy_x86_64-image = "manylinux_2_28"
-manylinux-pypy_aarch64-image = "manylinux_2_28"
-
-musllinux-x86_64-image = "musllinux_1_2"
-musllinux-aarch64-image = "musllinux_1_2"
-musllinux-ppc64le-image = "musllinux_1_2"
-musllinux-s390x-image = "musllinux_1_2"
-
-[tool.cibuildwheel.linux]
-archs = ["auto64", "aarch64"]
-
-[tool.cibuildwheel.macos]
-archs = ["auto64", "universal2"]
+archs = "auto64"
+build-frontend = "build[uv]"
 
 [tool.tox]
 legacy_tox_ini = """

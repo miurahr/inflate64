@@ -110,7 +110,7 @@ build-frontend = "build[uv]"
 [tool.tox]
 legacy_tox_ini = """
 [tox]
-envlist = check, py{39,310,311,312,313,314}, docs
+envlist = check, py{310,311,312,313,314}, docs
 
 [testenv]
 passenv = PYTEST_ADDOPTS

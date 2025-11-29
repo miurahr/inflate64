@@ -112,7 +112,7 @@ CLion is an IDE tool for C/C++ development that support CMake for build configur
 Dependency
 ----------
 
-- Python > 3.9
+- Python > 3.10
 - python development files (for example python3.8-dev package)
 - venv
 - GCC or CLang C/C++ compiler
